@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Silphfolio's Binder Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#141a20; --ink-2:#4a5560; --ink-3:#7d8894;
+  --paper:#eceef0; --well:#ffffff; --line:#c9ced4; --seam:#9aa3ac;
+  --card-fill:#f6c344; --card-edge:#a97a08;
+  --art-fill:#5b9bd8; --art-edge:#1d4f83;
+  --focus:#1d4f83; --warn:#a33a26;
+  --c:20px; --r:28px; --gap:3px; --gut:6px; --pad:9px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Space Grotesk",system-ui,sans-serif;font-size:15px;line-height:1.5}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+header.top{padding:34px 0 18px}
+h1{font-size:clamp(26px,4.4vw,40px);font-weight:700;letter-spacing:-.025em;margin:0 0 6px;line-height:1.06}
+h1 em{font-style:normal;color:var(--ink-3)}
+.sub{margin:0;color:var(--ink-2);max-width:60ch;font-size:clamp(16px,2.1vw,19px);line-height:1.45}
+.help{margin-top:18px;border:1px solid var(--line);background:var(--well);border-radius:3px}
+.help summary{cursor:pointer;padding:11px 15px;font-size:14px;font-weight:500;list-style:none;
+  display:flex;align-items:center;gap:8px}
+.help summary::-webkit-details-marker{display:none}
+.help summary::before{content:"?";display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;background:var(--ink);color:#fff;font-size:11px;flex:none}
+.help[open] summary{border-bottom:1px solid var(--line)}
+.help .body{padding:13px 15px 15px;font-size:13.5px;color:var(--ink-2);line-height:1.6}
+.help dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:7px 14px;align-items:baseline}
+.help dt{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink);white-space:nowrap}
+.help dd{margin:0}
+@media (max-width:520px){.help dl{grid-template-columns:1fr;gap:2px 0}.help dd{margin-bottom:9px}}
+
+/* tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-top:22px}
+.tabs button{
+  font-family:"Space Grotesk",sans-serif;font-size:14.5px;background:none;border:0;
+  border-bottom:2px solid transparent;padding:10px 16px;cursor:pointer;color:var(--ink-3);
+  margin-bottom:-1px;border-radius:0;
+}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink);font-weight:500}
+[hidden]{display:none!important}
+
+/* controls */
+select,button.btn,input[type=file]{font-family:"Space Grotesk",sans-serif;font-size:14px;color:var(--ink)}
+select,button.btn{background:var(--well);border:1px solid var(--line);border-radius:2px;padding:7px 12px;cursor:pointer}
+select{width:100%;padding:7px 9px}
+select:hover,button.btn:hover:not(:disabled){border-color:var(--seam)}
+button.btn:disabled{color:var(--ink-3);opacity:.55;cursor:default}
+button.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.btn.primary:hover:not(:disabled){background:#000}
+
+.bar{position:sticky;top:0;z-index:20;background:rgba(236,238,240,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar-in{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:flex-end;padding:12px 22px;max-width:1180px;margin:0 auto}
+.field{display:flex;flex-direction:column;gap:4px;min-width:118px}
+.field label{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3)}
+.tally{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-2);
+  padding-bottom:7px;white-space:nowrap}
+.tally b{color:var(--ink);font-weight:500}
+
+/* tracker */
+.tracker{background:var(--well);border:1px solid var(--line);border-radius:3px;margin-top:16px;
+  padding:13px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}
+.meter{display:flex;gap:3px;flex:none}
+.meter i{width:13px;height:19px;border-radius:2px;border:1px solid var(--line);background:transparent}
+.meter i.card{background:var(--card-fill);border-color:var(--card-edge)}
+.meter i.art{background:var(--art-fill);border-color:var(--art-edge)}
+.meter i.over{border-color:var(--warn);
+  background:repeating-linear-gradient(45deg,var(--warn),var(--warn) 2px,transparent 2px,transparent 4px)}
+.tracker .read{display:flex;flex-direction:column;gap:2px}
+.tracker .big{font-size:15px;font-weight:500;letter-spacing:-.01em}
+.tracker .big.alert{color:var(--warn)}
+.tracker .note{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-2);padding-top:14px}
+.legend span{display:flex;align-items:center;gap:7px}
+.sw{width:14px;height:19px;border-radius:2px;flex:none}
+.sw.card{background:var(--card-fill);border:1px solid var(--card-edge)}
+.sw.art{background:var(--art-fill);border:1px solid var(--art-edge)}
+.sw.wide{width:30px}
+
+/* browse results */
+.section-head{display:flex;align-items:baseline;gap:12px;margin:34px 0 14px;
+  padding-bottom:7px;border-bottom:1px solid var(--line)}
+.section-head .n{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:500;
+  letter-spacing:-.04em;line-height:1}
+.section-head .lab{font-size:14px;color:var(--ink-2)}
+.section-head .cnt{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:16px}
+figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+figcaption{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);
+  text-align:center;line-height:1.35}
+figcaption b{color:var(--ink-2);font-weight:400}
+.use{font-family:"IBM Plex Mono",monospace;font-size:10.5px;background:none;border:1px solid var(--line);
+  border-radius:2px;padding:3px 9px;cursor:pointer;color:var(--ink-2)}
+.use:hover{border-color:var(--ink);color:var(--ink)}
+
+/* a page */
+.page{position:relative;background:var(--well);border:1px solid var(--line);border-radius:3px;
+  padding:var(--pad);display:grid;
+  grid-template-rows:repeat(3,var(--r));column-gap:var(--gap);row-gap:4px}
+.page::before,.page::after{content:"";position:absolute;left:6px;right:6px;height:0;
+  border-top:1px dashed var(--seam);opacity:.5;pointer-events:none}
+.page::before{top:calc(var(--pad) + var(--r) + 2px)}
+.page::after{top:calc(var(--pad) + (2 * var(--r)) + 6px)}
+.spine{grid-row:1 / -1;justify-self:center;width:0;height:100%;
+  border-left:1px dashed var(--seam)}
+.pc{border-radius:2px}
+.pc.card{background:var(--card-fill);border:1px solid var(--card-edge)}
+.pc.art{background:var(--art-fill);border:1px solid var(--art-edge)}
+
+.pager{display:flex;align-items:center;justify-content:center;gap:12px;margin:38px 0 0}
+.pager .pos{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-2)}
+.empty{border:1px dashed var(--line);border-radius:3px;padding:44px 22px;text-align:center;
+  color:var(--ink-2);background:var(--well)}
+
+/* ---------- visualiser ---------- */
+.studio{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;padding-top:24px;align-items:start}
+@media (max-width:900px){.studio{grid-template-columns:minmax(0,1fr)}}
+.stage{background:var(--well);border:1px solid var(--line);border-radius:3px;padding:20px;
+  display:flex;flex-direction:column;align-items:center;gap:16px}
+:root{--sc:clamp(48px,11vw,104px)}
+.page.big{--c:var(--sc);--r:calc(var(--sc) * 1.4);--gap:6px;--gut:16px;--pad:16px;row-gap:9px;border-width:1px}
+.page.big::before{top:calc(var(--pad) + var(--r) + 4px)}
+.page.big::after{top:calc(var(--pad) + (2 * var(--r)) + 13px)}
+.slot{border-radius:3px;position:relative;overflow:hidden;cursor:pointer;
+  background-repeat:no-repeat;background-position:center;background-size:cover;border:1px solid}
+.slot.fit-cover{background-size:cover}
+.slot.fit-contain{background-size:contain}
+.slot.fit-stretch{background-size:100% 100%}
+.slot .fit{position:absolute;bottom:3px;left:3px;border:0;border-radius:2px;padding:1px 5px;
+  font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.04em;
+  background:rgba(0,0,0,.6);color:#fff;cursor:pointer;display:none}
+.slot.filled .fit{display:block}
+.stage-ctl select{width:auto}
+.slot.card{background-color:var(--card-fill);border-color:var(--card-edge)}
+.slot.art{background-color:var(--art-fill);border-color:var(--art-edge)}
+.slot.sel{outline:3px solid var(--ink);outline-offset:1px}
+.slot.hot{outline:3px dashed var(--ink);outline-offset:1px}
+.slot .tag{position:absolute;inset:auto 0 0 0;font-family:"IBM Plex Mono",monospace;
+  font-size:9.5px;text-align:center;padding:2px 0;color:#fff;background:rgba(0,0,0,.34)}
+.slot.card .tag{color:#3d2c02;background:rgba(255,255,255,.42)}
+.slot.filled .tag{display:none}
+.slot .clear{position:absolute;top:3px;right:3px;width:17px;height:17px;line-height:15px;
+  border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:12px;
+  cursor:pointer;padding:0;display:none}
+.slot.filled .clear{display:block}
+.stage-ctl{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.stage-meta{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);text-align:center}
+
+.panel{background:var(--well);border:1px solid var(--line);border-radius:3px;padding:16px}
+.panel h2{font-size:14px;margin:0 0 4px;letter-spacing:-.01em}
+.panel p.hint{margin:0 0 12px;font-size:12.5px;color:var(--ink-3);line-height:1.45}
+.drop{border:1px dashed var(--line);border-radius:3px;padding:20px 12px;text-align:center;
+  color:var(--ink-3);font-size:13px;cursor:pointer}
+.drop.hot{border-color:var(--ink);color:var(--ink)}
+.tray{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:8px;margin-top:14px}
+.chip{position:relative;border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  aspect-ratio:5/7;background:#dfe3e7 center/cover no-repeat;cursor:grab}
+.chip.sel{outline:3px solid var(--ink);outline-offset:1px}
+.chip .x{position:absolute;top:2px;right:2px;width:16px;height:16px;line-height:14px;
+  border:0;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:11px;cursor:pointer;padding:0}
+.privacy{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);
+  margin-top:14px;line-height:1.5}
+footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
+@media (max-width:560px){:root{--c:18px;--r:25px}.tally{margin-left:0;width:100%;padding-bottom:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Silphfolio's Binder Studio</h1>
+    <p class="sub">One page, endless possibilities.<br>Generate layouts with cards and art inserts until it feels right.<br>Then preview with your own images.</p>
+    <div class="tabs" role="tablist">
+      <button id="tab-browse" role="tab" aria-selected="true" aria-controls="p-browse">Browse layouts</button>
+      <button id="tab-vis" role="tab" aria-selected="false" aria-controls="p-vis">Visualise</button>
+    </div>
+  </header>
+</div>
+
+<!-- ============ BROWSE ============ -->
+<section id="p-browse" role="tabpanel" aria-labelledby="tab-browse">
+  <div class="bar">
+    <div class="bar-in">
+      <div class="field" style="min-width:172px"><label for="f-format">Page format</label><select id="f-format">
+        <option value="4x3">4×3 page (12 pockets)</option>
+        <option value="3x3-left">3×3 left page (9 pockets)</option>
+        <option value="3x3-right">3×3 right page (9 pockets)</option>
+      </select></div>
+      <div class="field"><label for="f-cards">Pokémon cards</label><select id="f-cards"><option value="any">Any</option></select></div>
+      <div class="field"><label for="f-11">1×1 inserts</label><select id="f-11"><option value="any">Any</option></select></div>
+      <div class="field"><label for="f-12">1×2 inserts</label><select id="f-12"><option value="any">Any</option></select></div>
+      <div class="field"><label for="f-21">2×1 inserts</label><select id="f-21"><option value="any">Any</option></select></div>
+      <div class="field"><label for="f-22">2×2 inserts</label><select id="f-22"><option value="any">Any</option></select></div>
+      <div class="field" style="min-width:auto"><label for="reset">&nbsp;</label><button class="btn" id="reset" type="button" title="Set every dropdown back to Any">Reset</button></div>
+      <p class="tally" id="tally"></p>
+    </div>
+  </div>
+  <div class="wrap">
+    <details class="help">
+      <summary>How to use this page</summary>
+      <div class="body">
+        <dl>
+          <dt>Page format</dt>
+          <dd>Pick the binder page you are filling. A 4×3 page holds 12 cards; a 3×3 page holds 9, and the left and right versions are mirror images of each other, so choose the one matching the side of the binder you are laying out.</dd>
+          <dt>Dropdowns</dt>
+          <dd>Narrow the results. The lists update each other, so an option only appears if it can still work alongside your other choices.</dd>
+          <dt>Reset</dt>
+          <dd>Puts every dropdown back to Any and shows the full set again.</dd>
+          <dt>Pocket bar</dt>
+          <dd>Shows how much of the page your current choices take up, and how much is still free.</dd>
+          <dt>Colours</dt>
+          <dd>Yellow blocks are Pokémon cards, blue blocks are art inserts. Dashed lines mark the binder stitching.</dd>
+          <dt>Use →</dt>
+          <dd>Opens that layout in the Visualise tab so you can drop your own images into it.</dd>
+          <dt>Previous / Next</dt>
+          <dd>Steps through the results, 72 layouts at a time.</dd>
+        </dl>
+      </div>
+    </details>
+    <div class="tracker" aria-live="polite">
+      <div class="meter" id="meter" aria-hidden="true"></div>
+      <div class="read"><span class="big" id="track-big"></span><span class="note" id="track-note"></span></div>
+    </div>
+    <div class="legend">
+      <span><i class="sw card"></i>Pokémon card (1×1)</span>
+      <span><i class="sw art"></i>Art insert (1×1)</span>
+      <span><i class="sw art wide"></i>Large insert (1×2 / 2×1 / 2×2)</span>
+    </div>
+    <div id="results"></div>
+    <div class="pager" id="pager" hidden>
+      <button class="btn" id="prev" type="button" title="Previous 72 layouts">Previous</button>
+      <span class="pos" id="pos"></span>
+      <button class="btn" id="next" type="button" title="Next 72 layouts">Next</button>
+    </div>
+    <footer id="foot"></footer>
+  </div>
+</section>
+
+<!-- ============ VISUALISE ============ -->
+<section id="p-vis" role="tabpanel" aria-labelledby="tab-vis" hidden>
+  <div class="wrap">
+    <details class="help" style="margin-top:0">
+      <summary>How to use this page</summary>
+      <div class="body">
+        <dl>
+          <dt>Add images</dt>
+          <dd>Click the dotted box to choose files, or drag images onto it. They stay in your browser and are never uploaded anywhere.</dd>
+          <dt>Place an image</dt>
+          <dd>Tap an image in the tray, then tap a pocket. On a computer you can also drag straight from the tray onto a pocket.</dd>
+          <dt>fill / fit / warp</dt>
+          <dd>The small badge on a filled pocket. Tap it to change just that image: <b>fill</b> crops it to cover the pocket, <b>fit</b> shrinks the whole image inside, <b>warp</b> stretches it to the exact shape.</dd>
+          <dt>Fit dropdown</dt>
+          <dd>Sets that same choice for every image on the page at once.</dd>
+          <dt>Swap two pockets</dt>
+          <dd>Drag one filled pocket onto another of the same size to trade places. On a phone, tap the first pocket then tap the second. Pockets of different sizes will not swap.</dd>
+          <dt>× on a pocket</dt>
+          <dd>Empties that pocket. The image stays in your tray.</dd>
+          <dt>× on a tray image</dt>
+          <dd>Removes the image completely, including from any pocket it was in.</dd>
+          <dt>‹ Layout / Layout ›</dt>
+          <dd>Moves through the layouts left by your Browse filters. Your images move with you.</dd>
+          <dt>Shuffle</dt>
+          <dd>Jumps to a random layout. Images stay placed, sliding to the nearest matching pocket.</dd>
+          <dt>Clear slots</dt>
+          <dd>Empties the whole page at once, keeping your images in the tray.</dd>
+          <dt>Download PNG</dt>
+          <dd>Saves the page exactly as shown, ready to post.</dd>
+        </dl>
+      </div>
+    </details>
+    <div class="studio">
+      <div class="stage">
+        <div id="stage-page"></div>
+        <p class="stage-meta" id="stage-meta"></p>
+        <div class="stage-ctl">
+          <select id="v-fit" aria-label="How images fill their pocket">
+            <option value="cover">Crop to fill</option>
+            <option value="contain">Shrink to fit</option>
+            <option value="stretch">Stretch to shape</option>
+          </select>
+          <button class="btn" id="v-prev" type="button" title="Previous layout — your images come with you">‹ Layout</button>
+          <button class="btn" id="v-shuffle" type="button" title="Jump to a random layout, keeping your images placed">Shuffle</button>
+          <button class="btn" id="v-next" type="button" title="Next layout — your images come with you">Layout ›</button>
+          <button class="btn" id="v-clear" type="button" title="Empty every pocket. Your images stay in the tray">Clear slots</button>
+          <button class="btn primary" id="v-png" type="button" title="Save this page as an image">Download PNG</button>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h2>Your images</h2>
+        <p class="hint">Add scans or photos, then tap an image and tap a pocket — or drag one onto a pocket. Images are cropped to fill, and stay put when you shuffle to another layout.</p>
+        <div class="drop" id="drop" tabindex="0" role="button">
+          Drop images here<br><span style="font-size:12px">or click to choose files</span>
+        </div>
+        <input type="file" id="file" accept="image/*" multiple hidden>
+        <div class="tray" id="tray"></div>
+        <p class="privacy">Nothing is uploaded anywhere. Images stay in this browser tab and disappear when you close it.</p>
+      </aside>
+    </div>
+    <footer style="padding-top:34px">The layout arrows follow whatever you have filtered on the Browse tab.</footer>
+  </div>
+</section>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= enumeration ================= */
+var PER_PAGE=72;
+var SHAPES=[[1,1],[1,2],[2,1],[2,2]];
+
+/* seam = zero-based index of the column immediately left of the stitch line.
+   A piece two columns wide may never straddle it. */
+var FORMATS={
+  '4x3':      {cols:4, rows:3, seam:1, label:'4\u00d73 page'},
+  '3x3-left': {cols:3, rows:3, seam:1, label:'3\u00d73 left page'},
+  '3x3-right':{cols:3, rows:3, seam:0, label:'3\u00d73 right page'}
+};
+var CACHE={}, fmt='4x3';
+
+function buildFormat(key){
+  if(CACHE[key]) return CACHE[key];
+  var F=FORMATS[key], cols=F.cols, rows=F.rows, seam=F.seam, tilings=[];
+  (function(){
+    var placed=[], filled=new Array(rows*cols).fill(false);
+    (function rec(){
+      var idx=filled.indexOf(false);
+      if(idx<0){tilings.push(placed.slice());return}
+      var r=Math.floor(idx/cols), c=idx%cols;
+      for(var sh=0;sh<SHAPES.length;sh++){
+        var h=SHAPES[sh][0], w=SHAPES[sh][1];
+        if(r+h>rows||c+w>cols) continue;
+        if(c<=seam&&c+w-1>=seam+1) continue;
+        var cells=[],ok=true;
+        for(var i=0;i<h&&ok;i++) for(var j=0;j<w;j++){
+          var k=(r+i)*cols+(c+j);
+          if(filled[k]){ok=false;break}
+          cells.push(k);
+        }
+        if(!ok) continue;
+        for(var m=0;m<cells.length;m++) filled[cells[m]]=true;
+        placed.push([r,c,h,w]); rec(); placed.pop();
+        for(var m2=0;m2<cells.length;m2++) filled[cells[m2]]=false;
+      }
+    })();
+  })();
+  var list=[];
+  for(var t=0;t<tilings.length;t++){
+    var pieces=tilings[t], smalls=0, n12=0,n21=0,n22=0;
+    for(var p=0;p<pieces.length;p++){
+      var h=pieces[p][2], w=pieces[p][3];
+      if(h===1&&w===1) smalls++;
+      else if(h===1&&w===2) n12++;
+      else if(h===2&&w===1) n21++;
+      else n22++;
+    }
+    if(n12+n21+n22===0) continue;
+    for(var mask=0;mask<(1<<smalls);mask++){
+      var cards=0;
+      for(var b=0;b<smalls;b++) if(mask&(1<<b)) cards++;
+      if(smalls-cards<1) continue;
+      list.push({f:key,t:t,m:mask,c:cards,a:smalls-cards,b:n12,d:n21,e:n22});
+    }
+  }
+  list.sort(function(x,y){return x.c-y.c||x.b-y.b||x.d-y.d||x.e-y.e||x.t-y.t||x.m-y.m});
+  CACHE[key]={tilings:tilings,list:list};
+  return CACHE[key];
+}
+var ALL=buildFormat(fmt).list;
+function pockets(){return FORMATS[fmt].cols*FORMATS[fmt].rows}
+
+/* visualiser state, declared early so the stage can redraw on any filter change */
+var images=[], nextId=1, selImg=null, selSlot=null, vIndex=0, assign={}, stageItem=null;
+var FITS=['cover','contain','stretch'], FITLABEL={cover:'fill',contain:'fit',stretch:'warp'};
+var defaultFit='cover';
+
+/* ================= shared drawing ================= */
+function fmtOf(item){return FORMATS[item.f]}
+function gridCol(c,F){return c<=F.seam ? c+1 : c+2}
+function gridTemplate(F){
+  return 'grid-template-columns:repeat('+(F.seam+1)+',var(--c)) var(--gut) repeat('+
+         (F.cols-F.seam-1)+',var(--c));';
+}
+function pieceInfo(item){
+  var pieces=CACHE[item.f].tilings[item.t], out=[], si=0;
+  for(var p=0;p<pieces.length;p++){
+    var r=pieces[p][0],c=pieces[p][1],h=pieces[p][2],w=pieces[p][3],isCard=false;
+    if(h===1&&w===1){isCard=!!(item.m&(1<<si));si++}
+    out.push({r:r,c:c,h:h,w:w,card:isCard});
+  }
+  return out;
+}
+function spec(x){
+  var bits=[];
+  if(x.a) bits.push(x.a+'×1×1');
+  if(x.b) bits.push(x.b+'×1×2');
+  if(x.d) bits.push(x.d+'×2×1');
+  if(x.e) bits.push(x.e+'×2×2');
+  return bits.join('  ');
+}
+function pageHTML(item){
+  var ps=pieceInfo(item), F=fmtOf(item);
+  var html='<div class="page" role="img" style="'+gridTemplate(F)+'" aria-label="'+
+           item.c+' cards, '+spec(item)+'">'+
+           '<div class="spine" aria-hidden="true" style="grid-column:'+(F.seam+2)+'"></div>';
+  for(var i=0;i<ps.length;i++){
+    var q=ps[i];
+    html+='<div class="pc '+(q.card?'card':'art')+'" style="grid-column:'+gridCol(q.c,F)+
+          ' / span '+q.w+';grid-row:'+(q.r+1)+' / span '+q.h+'"></div>';
+  }
+  return html+'</div>';
+}
+
+/* ================= browse ================= */
+var sel={cards:document.getElementById('f-cards'),a:document.getElementById('f-11'),
+         b:document.getElementById('f-12'),d:document.getElementById('f-21'),
+         e:document.getElementById('f-22')};
+var FILTERS=[{el:sel.cards,key:'c'},{el:sel.a,key:'a'},{el:sel.b,key:'b'},
+             {el:sel.d,key:'d'},{el:sel.e,key:'e'}];
+
+function matches(x,skip){
+  for(var i=0;i<FILTERS.length;i++){
+    var f=FILTERS[i]; if(f.key===skip) continue;
+    var v=f.el.value; if(v&&v!=='any'&&x[f.key]!==+v) return false;
+  }
+  return true;
+}
+function refreshOptions(){
+  for(var i=0;i<FILTERS.length;i++){
+    var f=FILTERS[i], counts={}, keys=[], total=0;
+    for(var j=0;j<ALL.length;j++){
+      var x=ALL[j]; if(!matches(x,f.key)) continue;
+      var v=x[f.key];
+      if(counts[v]===undefined){counts[v]=0;keys.push(v)}
+      counts[v]++; total++;
+    }
+    keys.sort(function(p,q){return p-q});
+    var cur=f.el.value;
+    var html='<option value="any">Any</option>';
+    for(var n=0;n<keys.length;n++)
+      html+='<option value="'+keys[n]+'">'+keys[n]+'</option>';
+    f.el.innerHTML=html;
+    f.el.value=(cur!==''&&cur!=='any'&&counts[cur]!==undefined)?cur:'any';
+  }
+}
+
+var view=ALL, page=0;
+function applyFilters(){
+  refreshOptions();
+  view=ALL.filter(function(x){return matches(x,null)});
+  page=0; updateTracker(); render(); syncStageNav(); drawStage();
+}
+for(var k in sel) sel[k].addEventListener('change',applyFilters);
+document.getElementById('reset').addEventListener('click',function(){
+  for(var k2 in sel) sel[k2].value='any';
+  applyFilters(); window.scrollTo({top:0});
+});
+document.getElementById('f-format').addEventListener('change',function(){
+  fmt=this.value;
+  ALL=buildFormat(fmt).list;
+  for(var k3 in sel) sel[k3].value='any';
+  vIndex=0; page=0;
+  applyFilters();
+  drawFooter();
+});
+
+var SPEC=[{k:'cards',size:1,tone:'card',name:'cards'},{k:'a',size:1,tone:'art',name:'1×1 inserts'},
+          {k:'b',size:2,tone:'art',name:'1×2 inserts'},{k:'d',size:2,tone:'art',name:'2×1 inserts'},
+          {k:'e',size:4,tone:'art',name:'2×2 inserts'}];
+function updateTracker(){
+  var cardCells=0,artCells=0,open=[];
+  for(var i=0;i<SPEC.length;i++){
+    var v=sel[SPEC[i].k].value;
+    if(v==='any'){open.push(SPEC[i].name);continue}
+    var cells=+v*SPEC[i].size;
+    if(SPEC[i].tone==='card') cardCells+=cells; else artCells+=cells;
+  }
+  var CAP=pockets(), used=cardCells+artCells, left=CAP-used, meter='', drawn=0, j;
+  for(j=0;j<Math.min(cardCells,CAP);j++,drawn++) meter+='<i class="card"></i>';
+  for(j=0;j<artCells&&drawn<CAP;j++,drawn++) meter+='<i class="art"></i>';
+  for(;drawn<CAP;drawn++) meter+='<i></i>';
+  for(j=0;j<used-CAP;j++) meter+='<i class="over"></i>';
+  document.getElementById('meter').innerHTML=meter;
+  var big=document.getElementById('track-big'), note=document.getElementById('track-note');
+  big.classList.toggle('alert',used>CAP||(used<CAP&&!open.length));
+  if(used>CAP){big.textContent=used+' of '+CAP+' pockets — '+(used-CAP)+' over';
+    note.textContent='This page only holds '+CAP+'. Drop one of the larger inserts.';}
+  else if(!open.length&&used<CAP){big.textContent=used+' of '+CAP+' pockets — '+left+' short';
+    note.textContent='Nothing will match until the sizes fill the page exactly.';}
+  else if(used===CAP){big.textContent=CAP+' of '+CAP+' pockets — page full';
+    note.textContent='Exact fit.';}
+  else if(!used){big.textContent='0 of '+CAP+' pockets assigned';note.textContent='Pick a size to start counting.';}
+  else{big.textContent=used+' of '+CAP+' pockets — '+left+' to go';
+    note.textContent=left+' left for '+open.join(', ')+'.';}
+}
+
+function render(){
+  var res=document.getElementById('results');
+  var total=view.length, pages=Math.max(1,Math.ceil(total/PER_PAGE));
+  if(page>=pages) page=pages-1;
+  document.getElementById('tally').innerHTML='<b>'+total.toLocaleString()+'</b> of '+ALL.length.toLocaleString()+' arrangements';
+  if(!total){
+    res.innerHTML='<div class="empty">Nothing matches that combination. Reset the filters to start over.</div>';
+    document.getElementById('pager').hidden=true; return;
+  }
+  var slice=view.slice(page*PER_PAGE,(page+1)*PER_PAGE), html='', cur=null;
+  for(var i=0;i<slice.length;i++){
+    var x=slice[i];
+    if(x.c!==cur){
+      if(cur!==null) html+='</div>';
+      cur=x.c;
+      var inSec=0; for(var j=0;j<total;j++) if(view[j].c===cur) inSec++;
+      html+='<div class="section-head"><span class="n">'+cur+'</span>'+
+            '<span class="lab">Pokémon card'+(cur===1?'':'s')+' on the page</span>'+
+            '<span class="cnt">'+inSec.toLocaleString()+' total</span></div><div class="grid">';
+    }
+    var num=page*PER_PAGE+i;
+    html+='<figure>'+pageHTML(x)+
+      '<figcaption><b>#'+(num+1).toLocaleString()+'</b><br>'+spec(x)+'</figcaption>'+
+      '<button class="use" type="button" title="Open this layout in the Visualise tab" data-i="'+num+'">Use →</button></figure>';
+  }
+  res.innerHTML=html+'</div>';
+  var pg=document.getElementById('pager'); pg.hidden=false;
+  document.getElementById('pos').textContent='Page '+(page+1).toLocaleString()+' of '+pages.toLocaleString();
+  document.getElementById('prev').disabled=(page===0);
+  document.getElementById('next').disabled=(page===pages-1);
+}
+document.getElementById('results').addEventListener('click',function(ev){
+  var b=ev.target.closest('.use'); if(!b) return;
+  vIndex=+b.dataset.i; drawStage(); showTab('vis');
+});
+document.getElementById('prev').addEventListener('click',function(){
+  if(page>0){page--;render();window.scrollTo({top:0,behavior:'smooth'})}});
+document.getElementById('next').addEventListener('click',function(){
+  if((page+1)*PER_PAGE<view.length){page++;render();window.scrollTo({top:0,behavior:'smooth'})}});
+
+function drawFooter(){
+  var by={}; for(var i=0;i<ALL.length;i++) by[ALL[i].c]=(by[ALL[i].c]||0)+1;
+  var parts=Object.keys(by).sort(function(a,b){return a-b}).map(function(k){return k+' cards: '+by[k].toLocaleString()});
+  document.getElementById('foot').textContent=
+    FORMATS[fmt].label+' — '+ALL.length.toLocaleString()+' arrangements in total ('+parts.join(' · ')+').';
+}
+
+/* ================= tabs ================= */
+function showTab(which){
+  var isB=(which==='browse');
+  document.getElementById('p-browse').hidden=!isB;
+  document.getElementById('p-vis').hidden=isB;
+  document.getElementById('tab-browse').setAttribute('aria-selected',isB);
+  document.getElementById('tab-vis').setAttribute('aria-selected',!isB);
+  if(!isB) drawStage();
+  window.scrollTo({top:0});
+}
+document.getElementById('tab-browse').addEventListener('click',function(){showTab('browse')});
+document.getElementById('tab-vis').addEventListener('click',function(){showTab('vis')});
+
+/* ================= visualiser ================= */
+
+function currentItem(){ return view.length ? view[Math.min(vIndex,view.length-1)] : null; }
+function syncStageNav(){ if(vIndex>=view.length) vIndex=0; }
+
+/* When the layout changes, move each placed image to the closest equivalent pocket:
+   same position and shape first, then any free pocket of the same shape, then any
+   free pocket of the same kind (card vs art). Anything with nowhere to go is dropped
+   from the page but stays in the tray. */
+function remapAssignments(oldItem,newItem,old){
+  var op=pieceInfo(oldItem), np=pieceInfo(newItem), out={}, usedOld={}, taken={}, i, j;
+
+  for(i=0;i<np.length;i++){
+    var n=np[i];
+    for(j=0;j<op.length;j++){
+      if(usedOld[j]||old[j]==null) continue;
+      var o=op[j];
+      if(o.r===n.r&&o.c===n.c&&o.h===n.h&&o.w===n.w){
+        out[i]=old[j]; usedOld[j]=1; taken[i]=1; break;
+      }
+    }
+  }
+  var left=[];
+  for(j=0;j<op.length;j++) if(!usedOld[j]&&old[j]!=null) left.push({img:old[j],p:op[j],done:false});
+
+  function place(test){
+    for(var s=0;s<left.length;s++){
+      if(left[s].done) continue;
+      for(var k=0;k<np.length;k++){
+        if(taken[k]) continue;
+        if(test(np[k],left[s].p)){ out[k]=left[s].img; taken[k]=1; left[s].done=true; break; }
+      }
+    }
+  }
+  place(function(slot,was){return slot.h===was.h&&slot.w===was.w});
+  place(function(slot,was){return slot.card===was.card});
+  return out;
+}
+
+function drawStage(){
+  var host=document.getElementById('stage-page'), item=currentItem();
+  if(item!==stageItem){
+    if(item&&stageItem) assign=remapAssignments(stageItem,item,assign);
+    else if(!stageItem) assign=assign;
+    stageItem=item;
+  }
+  if(!item){host.innerHTML='<div class="empty">No layout in the current filter.</div>';
+    document.getElementById('stage-meta').textContent=''; return}
+  var F=fmtOf(item), ps=pieceInfo(item);
+  var html='<div class="page big" style="'+gridTemplate(F)+'">'+
+           '<div class="spine" aria-hidden="true" style="grid-column:'+(F.seam+2)+'"></div>';
+  for(var i=0;i<ps.length;i++){
+    var q=ps[i], a=assign[i], img=a?byId(a.id):null;
+    if(a&&!img){delete assign[i]; a=null}
+    var fit=a?a.fit:defaultFit;
+    var style='grid-column:'+gridCol(q.c,F)+' / span '+q.w+';grid-row:'+(q.r+1)+' / span '+q.h+';';
+    if(img) style+='background-image:url('+img.url+');';
+    html+='<div class="slot '+(q.card?'card':'art')+' fit-'+fit+(img?' filled':'')+
+          (selSlot===i?' sel':'')+'" data-s="'+i+'" tabindex="0"'+
+          (img?' draggable="true"':'')+' style="'+style+'">'+
+          '<span class="tag">'+(q.card?'card':q.h+'×'+q.w)+'</span>'+
+          '<button class="fit" type="button" data-fit="'+i+'" aria-label="Change how this image fits">'+FITLABEL[fit]+'</button>'+
+          '<button class="clear" type="button" data-clear="'+i+'" aria-label="Clear pocket">×</button></div>';
+  }
+  host.innerHTML=html+'</div>';
+  var placed=0; for(var s in assign) if(assign[s]!=null) placed++;
+  document.getElementById('stage-meta').textContent=
+    'Layout '+(vIndex+1).toLocaleString()+' of '+view.length.toLocaleString()+
+    '  ·  '+item.c+' cards  ·  '+spec(item)+(placed?'  ·  '+placed+' image'+(placed===1?'':'s')+' placed':'');
+}
+/* two pockets can trade contents only when they are the same size */
+function sameSize(ps,a,b){return !!ps[a]&&!!ps[b]&&ps[a].h===ps[b].h&&ps[a].w===ps[b].w}
+function swapSlots(a,b){
+  var item=currentItem(); if(!item||a===b) return false;
+  var ps=pieceInfo(item);
+  if(!sameSize(ps,a,b)) return false;
+  var keep=assign[a];
+  if(assign[b]!=null) assign[a]=assign[b]; else delete assign[a];
+  if(keep!=null) assign[b]=keep; else delete assign[b];
+  return true;
+}
+function byId(id){for(var i=0;i<images.length;i++) if(images[i].id===id) return images[i]; return null}
+
+document.getElementById('stage-page').addEventListener('click',function(ev){
+  var ft=ev.target.closest('[data-fit]');
+  if(ft){
+    var fi=+ft.dataset.fit;
+    if(assign[fi]){assign[fi].fit=FITS[(FITS.indexOf(assign[fi].fit)+1)%FITS.length]; drawStage()}
+    return;
+  }
+  var cl=ev.target.closest('[data-clear]');
+  if(cl){delete assign[+cl.dataset.clear]; selSlot=null; drawStage(); return}
+  var s=ev.target.closest('.slot'); if(!s) return;
+  var i=+s.dataset.s;
+  if(selImg!=null){
+    assign[i]={id:selImg,fit:defaultFit}; selImg=null; selSlot=null;
+    drawTray(); drawStage(); return;
+  }
+  if(selSlot===null){ if(assign[i]) selSlot=i; }
+  else if(selSlot===i){ selSlot=null; }
+  else if(swapSlots(selSlot,i)){ selSlot=null; }
+  else { selSlot=assign[i]?i:null; }
+  drawStage();
+});
+document.getElementById('stage-page').addEventListener('dragstart',function(ev){
+  var s=ev.target.closest('.slot'); if(!s) return;
+  var i=+s.dataset.s;
+  if(!assign[i]){ev.preventDefault();return}
+  ev.dataTransfer.setData('text/plain','slot:'+i);
+});
+document.getElementById('stage-page').addEventListener('dragover',function(ev){
+  var s=ev.target.closest('.slot'); if(!s) return;
+  ev.preventDefault(); s.classList.add('hot');
+});
+document.getElementById('stage-page').addEventListener('dragleave',function(ev){
+  var s=ev.target.closest('.slot'); if(s) s.classList.remove('hot');
+});
+document.getElementById('stage-page').addEventListener('drop',function(ev){
+  var s=ev.target.closest('.slot'); if(!s) return;
+  ev.preventDefault(); s.classList.remove('hot');
+  var raw=ev.dataTransfer.getData('text/plain'), target=+s.dataset.s;
+  if(raw.indexOf('slot:')===0){ swapSlots(+raw.slice(5),target); }
+  else { var id=+raw; if(id) assign[target]={id:id,fit:defaultFit}; }
+  selSlot=null; drawStage();
+});
+
+function stepLayout(d){
+  if(!view.length) return;
+  vIndex=(vIndex+d+view.length)%view.length; drawStage();
+}
+document.getElementById('v-prev').addEventListener('click',function(){stepLayout(-1)});
+document.getElementById('v-next').addEventListener('click',function(){stepLayout(1)});
+document.getElementById('v-shuffle').addEventListener('click',function(){
+  if(!view.length) return;
+  vIndex=Math.floor(Math.random()*view.length); drawStage();
+});
+document.getElementById('v-clear').addEventListener('click',function(){assign={};drawStage()});
+document.getElementById('v-fit').addEventListener('change',function(){
+  defaultFit=this.value;
+  for(var s in assign) if(assign[s]) assign[s].fit=defaultFit;
+  drawStage();
+});
+
+/* uploads */
+var drop=document.getElementById('drop'), fileInput=document.getElementById('file');
+drop.addEventListener('click',function(){fileInput.click()});
+drop.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click()}});
+fileInput.addEventListener('change',function(){addFiles(this.files); this.value=''});
+['dragenter','dragover'].forEach(function(t){
+  drop.addEventListener(t,function(e){e.preventDefault();drop.classList.add('hot')})});
+['dragleave','drop'].forEach(function(t){
+  drop.addEventListener(t,function(e){e.preventDefault();drop.classList.remove('hot')})});
+drop.addEventListener('drop',function(e){ if(e.dataTransfer.files.length) addFiles(e.dataTransfer.files) });
+
+function addFiles(list){
+  for(var i=0;i<list.length;i++){
+    var f=list[i]; if(!/^image\//.test(f.type)) continue;
+    (function(file){
+      var url=URL.createObjectURL(file), im=new Image();
+      im.onload=function(){
+        images.push({id:nextId++,url:url,el:im,name:file.name});
+        drawTray();
+      };
+      im.src=url;
+    })(f);
+  }
+}
+function drawTray(){
+  var html='';
+  for(var i=0;i<images.length;i++){
+    var im=images[i];
+    html+='<div class="chip'+(selImg===im.id?' sel':'')+'" draggable="true" data-id="'+im.id+'" '+
+          'title="'+im.name.replace(/"/g,'')+'" style="background-image:url('+im.url+')">'+
+          '<button class="x" type="button" data-del="'+im.id+'" aria-label="Remove image">×</button></div>';
+  }
+  document.getElementById('tray').innerHTML=html;
+}
+document.getElementById('tray').addEventListener('click',function(ev){
+  var d=ev.target.closest('[data-del]');
+  if(d){
+    var id=+d.dataset.del;
+    images=images.filter(function(x){return x.id!==id});
+    for(var s in assign) if(assign[s]&&assign[s].id===id) delete assign[s];
+    if(selImg===id) selImg=null;
+    drawTray(); drawStage(); return;
+  }
+  var c=ev.target.closest('.chip'); if(!c) return;
+  var cid=+c.dataset.id;
+  selImg=(selImg===cid)?null:cid;
+  drawTray();
+});
+document.getElementById('tray').addEventListener('dragstart',function(ev){
+  var c=ev.target.closest('.chip'); if(!c) return;
+  ev.dataTransfer.setData('text/plain',c.dataset.id);
+});
+
+/* PNG export */
+var EX={W:300,H:420,G:12,GU:26,RG:16,P:34};
+function rrect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+document.getElementById('v-png').addEventListener('click',function(){
+  var item=currentItem(); if(!item) return;
+  var W=EX.W,H=EX.H,G=EX.G,GU=EX.GU,RG=EX.RG,P=EX.P;
+  var F=fmtOf(item), COLS=F.cols, ROWS=F.rows, SEAM=F.seam;
+  var cw=2*P+COLS*W+(COLS-1)*G+GU, ch=2*P+ROWS*H+(ROWS-1)*RG;
+  var cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
+  var ctx=cv.getContext('2d');
+  ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,cw,ch);
+
+  function colX(c){return P + c*(W+G) + (c>SEAM?GU:0)}
+  function rowY(r){return P + r*(H+RG)}
+
+  ctx.save(); ctx.setLineDash([10,10]); ctx.strokeStyle='#9aa3ac'; ctx.lineWidth=2;
+  var sx=colX(SEAM)+W+G/2+GU/2;
+  ctx.beginPath(); ctx.moveTo(sx,P); ctx.lineTo(sx,ch-P); ctx.stroke();
+  for(var r=1;r<ROWS;r++){
+    var y=rowY(r)-RG/2;
+    ctx.beginPath(); ctx.moveTo(P,y); ctx.lineTo(cw-P,y); ctx.stroke();
+  }
+  ctx.restore();
+
+  var ps=pieceInfo(item);
+  for(var i=0;i<ps.length;i++){
+    var q=ps[i];
+    var x=colX(q.c), y=rowY(q.r);
+    var w=q.w*W+(q.w-1)*G, h=q.h*H+(q.h-1)*RG;
+    var a=assign[i], im=a?byId(a.id):null;
+    ctx.save(); rrect(ctx,x,y,w,h,8); ctx.clip();
+    ctx.fillStyle=q.card?'#f6c344':'#5b9bd8'; ctx.fillRect(x,y,w,h);
+    if(im&&im.el.naturalWidth){
+      var iw=im.el.naturalWidth, ih=im.el.naturalHeight, sc, sw, sh;
+      if(a.fit==='stretch'){
+        ctx.drawImage(im.el,0,0,iw,ih,x,y,w,h);
+      }else if(a.fit==='contain'){
+        sc=Math.min(w/iw,h/ih); sw=iw*sc; sh=ih*sc;
+        ctx.drawImage(im.el,0,0,iw,ih,x+(w-sw)/2,y+(h-sh)/2,sw,sh);
+      }else{
+        sc=Math.max(w/iw,h/ih); sw=w/sc; sh=h/sc;
+        ctx.drawImage(im.el,(iw-sw)/2,(ih-sh)/2,sw,sh,x,y,w,h);
+      }
+    }
+    ctx.restore();
+    ctx.strokeStyle=q.card?'#a97a08':'#1d4f83'; ctx.lineWidth=2;
+    rrect(ctx,x,y,w,h,8); ctx.stroke();
+  }
+  cv.toBlob(function(blob){
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='binder-'+item.f+'-'+item.c+'cards-'+spec(item).replace(/[^0-9x]+/g,'-')+'.png';
+    a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+  },'image/png');
+});
+
+/* ================= init ================= */
+document.getElementById('f-format').value=fmt;
+for(var kk in sel) sel[kk].value='any';
+applyFilters();
+drawFooter();
+drawTray();
+drawStage();
+})();
+</script>
+</body>
+</html>
