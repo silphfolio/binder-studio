@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Silphfolio's Binder Studio</title>
+<link rel="icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -24,7 +25,8 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
 
 header.top{padding:34px 0 18px}
-h1{font-size:clamp(26px,4.4vw,40px);font-weight:700;letter-spacing:-.025em;margin:0 0 6px;line-height:1.06}
+h1{font-size:clamp(26px,4.4vw,40px);font-weight:700;letter-spacing:-.025em;margin:0 0 10px;line-height:1.06}
+h1 .logo{display:block;height:clamp(46px,7.5vw,78px);width:auto;max-width:100%}
 h1 em{font-style:normal;color:var(--ink-3)}
 .sub{margin:0;color:var(--ink-2);max-width:60ch;font-size:clamp(16px,2.1vw,19px);line-height:1.45}
 .help{margin-top:18px;border:1px solid var(--line);background:var(--well);border-radius:3px}
@@ -98,7 +100,12 @@ button.btn.primary:hover:not(:disabled){background:#000}
 .section-head .lab{font-size:14px;color:var(--ink-2)}
 .section-head .cnt{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:16px}
-figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+figure:hover .page,figure:focus-visible .page{border-color:var(--ink)}
+.stage-sel{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;
+  min-height:34px;font-size:13px;color:var(--ink-3)}
+.stage-sel .btn{padding:5px 12px;font-size:13px}
+.stage-ctl select{width:auto}
 figcaption{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);
   text-align:center;line-height:1.35}
 figcaption b{color:var(--ink-2);font-weight:400}
@@ -131,7 +138,7 @@ figcaption b{color:var(--ink-2);font-weight:400}
 .stage{background:var(--well);border:1px solid var(--line);border-radius:3px;padding:20px;
   display:flex;flex-direction:column;align-items:center;gap:16px}
 :root{--sc:clamp(48px,11vw,104px)}
-.page.big{--c:var(--sc);--r:calc(var(--sc) * 1.4);--gap:6px;--gut:16px;--pad:16px;row-gap:9px;border-width:1px}
+.page.big{--c:var(--sc);--r:calc(var(--sc) * 1.3968);--gap:6px;--gut:16px;--pad:16px;row-gap:9px;border-width:1px}
 .page.big::before{top:calc(var(--pad) + var(--r) + 4px)}
 .page.big::after{top:calc(var(--pad) + (2 * var(--r)) + 13px)}
 .slot{border-radius:3px;position:relative;overflow:hidden;cursor:pointer;
@@ -182,7 +189,11 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
 
 <div class="wrap">
   <header class="top">
-    <h1>Silphfolio's Binder Studio</h1>
+    <h1>
+      <img class="logo" src="logo.png" alt="Silphfolio's Binder Studio"
+           onerror="this.remove();document.getElementById('brand-text').hidden=false">
+      <span id="brand-text" hidden>Silphfolio's Binder Studio</span>
+    </h1>
     <p class="sub">One page, endless possibilities.<br>Generate layouts with cards and art inserts until it feels right.<br>Then preview with your own images.</p>
     <div class="tabs" role="tablist">
       <button id="tab-browse" role="tab" aria-selected="true" aria-controls="p-browse">Browse layouts</button>
@@ -206,6 +217,7 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
       <div class="field"><label for="f-21">2×1 inserts</label><select id="f-21"><option value="any">Any</option></select></div>
       <div class="field"><label for="f-22">2×2 inserts</label><select id="f-22"><option value="any">Any</option></select></div>
       <div class="field" style="min-width:auto"><label for="reset">&nbsp;</label><button class="btn" id="reset" type="button" title="Set every dropdown back to Any">Reset</button></div>
+      <div class="field" style="min-width:auto"><label for="shuffle-order">&nbsp;</label><button class="btn" id="shuffle-order" type="button" title="Show the results in a random order">Shuffle order</button></div>
       <p class="tally" id="tally"></p>
     </div>
   </div>
@@ -224,10 +236,12 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
           <dd>Shows how much of the page your current choices take up, and how much is still free.</dd>
           <dt>Colours</dt>
           <dd>Yellow blocks are Pokémon cards, blue blocks are art inserts. Dashed lines mark the binder stitching.</dd>
-          <dt>Use →</dt>
-          <dd>Opens that layout in the Visualise tab so you can drop your own images into it.</dd>
-          <dt>Previous / Next</dt>
-          <dd>Steps through the results, 72 layouts at a time.</dd>
+          <dt>Opening a layout</dt>
+          <dd>Click anywhere on a layout, or its Use button, to open it in the Visualise tab and drop your own images in.</dd>
+          <dt>Shuffle order</dt>
+          <dd>Reorders the results at random, so you see a spread of the whole set rather than working through it from the start. Reset restores the sorted order.</dd>
+          <dt>Scrolling</dt>
+          <dd>More layouts load automatically as you scroll. Use Load more if they do not appear.</dd>
         </dl>
       </div>
     </details>
@@ -241,11 +255,11 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
       <span><i class="sw art wide"></i>Large insert (1×2 / 2×1 / 2×2)</span>
     </div>
     <div id="results"></div>
+    <div id="sentinel" aria-hidden="true" style="height:1px"></div>
     <div class="pager" id="pager" hidden>
-      <button class="btn" id="prev" type="button" title="Previous 72 layouts">Previous</button>
-      <span class="pos" id="pos"></span>
-      <button class="btn" id="next" type="button" title="Next 72 layouts">Next</button>
+      <button class="btn" id="load-more" type="button" title="Show more layouts">Load more</button>
     </div>
+    <p class="pos" id="load-note" style="text-align:center;margin-top:12px"></p>
     <footer id="foot"></footer>
   </div>
 </section>
@@ -265,8 +279,14 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
           <dd>The small badge on a filled pocket. Tap it to change just that image: <b>fill</b> crops it to cover the pocket, <b>fit</b> shrinks the whole image inside, <b>warp</b> stretches it to the exact shape.</dd>
           <dt>Fit dropdown</dt>
           <dd>Sets that same choice for every image on the page at once.</dd>
+          <dt>Selecting pockets</dt>
+          <dd>Tap a pocket to select it, tap again to deselect. The buttons under the page show what you can do with the current selection.</dd>
           <dt>Swap two pockets</dt>
-          <dd>Drag one filled pocket onto another of the same size to trade places. On a phone, tap the first pocket then tap the second. Pockets of different sizes will not swap.</dd>
+          <dd>Select two pockets of the same size and press Swap, or just drag one filled pocket onto another. Pockets of different sizes will not swap.</dd>
+          <dt>Merge</dt>
+          <dd>Select two or four art inserts sitting side by side, then press Merge to join them into a single 1×2, 2×1 or 2×2 insert. Cards cannot be merged, and nothing can merge across the stitch line.</dd>
+          <dt>Unmerge</dt>
+          <dd>Select a large art insert and press Unmerge to break it back into single pockets.</dd>
           <dt>× on a pocket</dt>
           <dd>Empties that pocket. The image stays in your tray.</dd>
           <dt>× on a tray image</dt>
@@ -278,7 +298,7 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
           <dt>Clear slots</dt>
           <dd>Empties the whole page at once, keeping your images in the tray.</dd>
           <dt>Download PNG</dt>
-          <dd>Saves the page exactly as shown, ready to post.</dd>
+          <dd>Saves the page at true print size: every single pocket comes out 63 × 88 mm, matching a real card. Pick 300 dpi for printing, or 150 dpi for a smaller file to post online.</dd>
         </dl>
       </div>
     </details>
@@ -286,6 +306,7 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
       <div class="stage">
         <div id="stage-page"></div>
         <p class="stage-meta" id="stage-meta"></p>
+        <div class="stage-sel" id="stage-actions"></div>
         <div class="stage-ctl">
           <select id="v-fit" aria-label="How images fill their pocket">
             <option value="cover">Crop to fill</option>
@@ -296,7 +317,12 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
           <button class="btn" id="v-shuffle" type="button" title="Jump to a random layout, keeping your images placed">Shuffle</button>
           <button class="btn" id="v-next" type="button" title="Next layout — your images come with you">Layout ›</button>
           <button class="btn" id="v-clear" type="button" title="Empty every pocket. Your images stay in the tray">Clear slots</button>
-          <button class="btn primary" id="v-png" type="button" title="Save this page as an image">Download PNG</button>
+          <select id="v-dpi" aria-label="Print resolution">
+            <option value="150">150 dpi</option>
+            <option value="300" selected>300 dpi</option>
+            <option value="600">600 dpi</option>
+          </select>
+          <button class="btn primary" id="v-png" type="button" title="Save this page as an image sized for printing">Download PNG</button>
         </div>
       </div>
 
@@ -384,7 +410,8 @@ var ALL=buildFormat(fmt).list;
 function pockets(){return FORMATS[fmt].cols*FORMATS[fmt].rows}
 
 /* visualiser state, declared early so the stage can redraw on any filter change */
-var images=[], nextId=1, selImg=null, selSlot=null, vIndex=0, assign={}, stageItem=null;
+var images=[], nextId=1, selImg=null, vIndex=0, assign={}, stageItem=null;
+var selSlots=[], stagePieces=null, stageFmtKey=fmt, edited=false;
 var FITS=['cover','contain','stretch'], FITLABEL={cover:'fill',contain:'fit',stretch:'warp'};
 var defaultFit='cover';
 
@@ -462,18 +489,21 @@ var view=ALL, page=0;
 function applyFilters(){
   refreshOptions();
   view=ALL.filter(function(x){return matches(x,null)});
-  page=0; updateTracker(); render(); syncStageNav(); drawStage();
+  if(shuffled) shuffleView();
+  updateTracker(); render(); syncStageNav(); drawStage();
 }
 for(var k in sel) sel[k].addEventListener('change',applyFilters);
 document.getElementById('reset').addEventListener('click',function(){
   for(var k2 in sel) sel[k2].value='any';
+  shuffled=false; document.getElementById('shuffle-order').textContent='Shuffle order';
   applyFilters(); window.scrollTo({top:0});
 });
 document.getElementById('f-format').addEventListener('change',function(){
   fmt=this.value;
   ALL=buildFormat(fmt).list;
   for(var k3 in sel) sel[k3].value='any';
-  vIndex=0; page=0;
+  shuffled=false; document.getElementById('shuffle-order').textContent='Shuffle order';
+  vIndex=0; stagePieces=null; edited=false;
   applyFilters();
   drawFooter();
 });
@@ -508,45 +538,94 @@ function updateTracker(){
     note.textContent=left+' left for '+open.join(', ')+'.';}
 }
 
+var shown=0, shuffled=false, curGrid=null, lastSec=null;
+var RENDER_CAP=1500;
+
+function figHTML(x,idx){
+  return '<figure data-i="'+idx+'" tabindex="0" role="button" aria-label="Open layout '+(idx+1)+' in the Visualise tab">'+
+    pageHTML(x)+
+    '<figcaption><b>#'+(idx+1).toLocaleString()+'</b><br>'+spec(x)+'</figcaption>'+
+    '<button class="use" type="button" title="Open this layout in the Visualise tab" data-i="'+idx+'">Use \u2192</button></figure>';
+}
+function newGrid(){
+  var g=document.createElement('div'); g.className='grid';
+  document.getElementById('results').appendChild(g); curGrid=g;
+}
+function sectionHead(cards){
+  var inSec=0; for(var j=0;j<view.length;j++) if(view[j].c===cards) inSec++;
+  var d=document.createElement('div'); d.className='section-head';
+  d.innerHTML='<span class="n">'+cards+'</span><span class="lab">Pok\u00e9mon card'+
+    (cards===1?'':'s')+' on the page</span><span class="cnt">'+inSec.toLocaleString()+' total</span>';
+  document.getElementById('results').appendChild(d);
+}
+function appendBatch(){
+  if(!view.length) return;
+  var end=Math.min(shown+PER_PAGE, view.length, RENDER_CAP), buf='';
+  for(var i=shown;i<end;i++){
+    var x=view[i];
+    if(!shuffled && x.c!==lastSec){
+      if(buf&&curGrid){curGrid.insertAdjacentHTML('beforeend',buf); buf=''}
+      lastSec=x.c; sectionHead(x.c); newGrid();
+    }
+    if(!curGrid) newGrid();
+    buf+=figHTML(x,i);
+  }
+  if(buf&&curGrid) curGrid.insertAdjacentHTML('beforeend',buf);
+  shown=end;
+  updateLoadUI();
+}
+function updateLoadUI(){
+  var more = shown<view.length && shown<RENDER_CAP;
+  document.getElementById('pager').hidden=!more;
+  var note=document.getElementById('load-note');
+  if(!view.length) note.textContent='';
+  else if(shown>=RENDER_CAP && view.length>RENDER_CAP)
+    note.textContent='Showing the first '+RENDER_CAP.toLocaleString()+' of '+view.length.toLocaleString()+
+      '. Narrow the filters, or shuffle the order for a different selection.';
+  else if(!more) note.textContent='That is all '+view.length.toLocaleString()+'.';
+  else note.textContent='';
+}
 function render(){
   var res=document.getElementById('results');
-  var total=view.length, pages=Math.max(1,Math.ceil(total/PER_PAGE));
-  if(page>=pages) page=pages-1;
-  document.getElementById('tally').innerHTML='<b>'+total.toLocaleString()+'</b> of '+ALL.length.toLocaleString()+' arrangements';
-  if(!total){
+  document.getElementById('tally').innerHTML='<b>'+view.length.toLocaleString()+'</b> of '+
+    ALL.length.toLocaleString()+' arrangements';
+  res.innerHTML=''; curGrid=null; lastSec=null; shown=0;
+  if(!view.length){
     res.innerHTML='<div class="empty">Nothing matches that combination. Reset the filters to start over.</div>';
-    document.getElementById('pager').hidden=true; return;
+    document.getElementById('pager').hidden=true;
+    document.getElementById('load-note').textContent='';
+    return;
   }
-  var slice=view.slice(page*PER_PAGE,(page+1)*PER_PAGE), html='', cur=null;
-  for(var i=0;i<slice.length;i++){
-    var x=slice[i];
-    if(x.c!==cur){
-      if(cur!==null) html+='</div>';
-      cur=x.c;
-      var inSec=0; for(var j=0;j<total;j++) if(view[j].c===cur) inSec++;
-      html+='<div class="section-head"><span class="n">'+cur+'</span>'+
-            '<span class="lab">Pokémon card'+(cur===1?'':'s')+' on the page</span>'+
-            '<span class="cnt">'+inSec.toLocaleString()+' total</span></div><div class="grid">';
-    }
-    var num=page*PER_PAGE+i;
-    html+='<figure>'+pageHTML(x)+
-      '<figcaption><b>#'+(num+1).toLocaleString()+'</b><br>'+spec(x)+'</figcaption>'+
-      '<button class="use" type="button" title="Open this layout in the Visualise tab" data-i="'+num+'">Use →</button></figure>';
+  appendBatch();
+}
+function shuffleView(){
+  for(var i=view.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1)), t=view[i]; view[i]=view[j]; view[j]=t;
   }
-  res.innerHTML=html+'</div>';
-  var pg=document.getElementById('pager'); pg.hidden=false;
-  document.getElementById('pos').textContent='Page '+(page+1).toLocaleString()+' of '+pages.toLocaleString();
-  document.getElementById('prev').disabled=(page===0);
-  document.getElementById('next').disabled=(page===pages-1);
+}
+document.getElementById('shuffle-order').addEventListener('click',function(){
+  if(!view.length) return;
+  shuffled=true; shuffleView(); this.textContent='Shuffle again';
+  render(); window.scrollTo({top:0});
+});
+document.getElementById('load-more').addEventListener('click',appendBatch);
+if(typeof IntersectionObserver!=='undefined'){
+  new IntersectionObserver(function(entries){
+    if(entries[0].isIntersecting && !document.getElementById('p-browse').hidden) appendBatch();
+  },{rootMargin:'800px'}).observe(document.getElementById('sentinel'));
+}
+function openInVisualiser(idx){
+  edited=false; vIndex=idx; drawStage(); showTab('vis');
 }
 document.getElementById('results').addEventListener('click',function(ev){
-  var b=ev.target.closest('.use'); if(!b) return;
-  vIndex=+b.dataset.i; drawStage(); showTab('vis');
+  var t=ev.target.closest('[data-i]'); if(!t) return;
+  openInVisualiser(+t.dataset.i);
 });
-document.getElementById('prev').addEventListener('click',function(){
-  if(page>0){page--;render();window.scrollTo({top:0,behavior:'smooth'})}});
-document.getElementById('next').addEventListener('click',function(){
-  if((page+1)*PER_PAGE<view.length){page++;render();window.scrollTo({top:0,behavior:'smooth'})}});
+document.getElementById('results').addEventListener('keydown',function(ev){
+  if(ev.key!=='Enter'&&ev.key!==' ') return;
+  var t=ev.target.closest('figure[data-i]'); if(!t) return;
+  ev.preventDefault(); openInVisualiser(+t.dataset.i);
+});
 
 function drawFooter(){
   var by={}; for(var i=0;i<ALL.length;i++) by[ALL[i].c]=(by[ALL[i].c]||0)+1;
@@ -572,51 +651,101 @@ document.getElementById('tab-vis').addEventListener('click',function(){showTab('
 
 function currentItem(){ return view.length ? view[Math.min(vIndex,view.length-1)] : null; }
 function syncStageNav(){ if(vIndex>=view.length) vIndex=0; }
+function byId(id){for(var i=0;i<images.length;i++) if(images[i].id===id) return images[i]; return null}
 
-/* When the layout changes, move each placed image to the closest equivalent pocket:
-   same position and shape first, then any free pocket of the same shape, then any
-   free pocket of the same kind (card vs art). Anything with nowhere to go is dropped
-   from the page but stays in the tray. */
-function remapAssignments(oldItem,newItem,old){
-  var op=pieceInfo(oldItem), np=pieceInfo(newItem), out={}, usedOld={}, taken={}, i, j;
+/* The stage keeps its own editable copy of the layout, so pockets can be merged
+   and unmerged without being tied to a catalogued arrangement. */
+function piecesFromItem(item){
+  return pieceInfo(item).map(function(q){return {r:q.r,c:q.c,h:q.h,w:q.w,card:q.card}});
+}
+function setStage(item){
+  var np = item ? piecesFromItem(item) : null;
+  if(stagePieces&&np) assign=remapPieces(stagePieces,np,assign);
+  else if(!np) assign={};
+  stagePieces=np; stageFmtKey=item?item.f:fmt; stageItem=item; edited=false; selSlots=[];
+}
 
+/* Move each placed image to the closest equivalent pocket: same position and size
+   first, then any free pocket of the same size, then any free pocket of the same
+   kind. Anything with nowhere to go leaves the page but stays in the tray. */
+function remapPieces(op,np,old){
+  var out={}, usedOld={}, taken={}, i, j;
   for(i=0;i<np.length;i++){
     var n=np[i];
     for(j=0;j<op.length;j++){
       if(usedOld[j]||old[j]==null) continue;
       var o=op[j];
-      if(o.r===n.r&&o.c===n.c&&o.h===n.h&&o.w===n.w){
-        out[i]=old[j]; usedOld[j]=1; taken[i]=1; break;
-      }
+      if(o.r===n.r&&o.c===n.c&&o.h===n.h&&o.w===n.w){out[i]=old[j];usedOld[j]=1;taken[i]=1;break}
     }
   }
   var left=[];
   for(j=0;j<op.length;j++) if(!usedOld[j]&&old[j]!=null) left.push({img:old[j],p:op[j],done:false});
-
   function place(test){
-    for(var s=0;s<left.length;s++){
-      if(left[s].done) continue;
+    for(var q=0;q<left.length;q++){
+      if(left[q].done) continue;
       for(var k=0;k<np.length;k++){
         if(taken[k]) continue;
-        if(test(np[k],left[s].p)){ out[k]=left[s].img; taken[k]=1; left[s].done=true; break; }
+        if(test(np[k],left[q].p)){out[k]=left[q].img;taken[k]=1;left[q].done=true;break}
       }
     }
   }
-  place(function(slot,was){return slot.h===was.h&&slot.w===was.w});
-  place(function(slot,was){return slot.card===was.card});
+  place(function(a,b){return a.h===b.h&&a.w===b.w});
+  place(function(a,b){return a.card===b.card});
   return out;
+}
+
+function stageStats(){
+  var st={c:0,a:0,b:0,d:0,e:0};
+  (stagePieces||[]).forEach(function(q){
+    if(q.h===1&&q.w===1){ q.card?st.c++:st.a++; }
+    else if(q.h===1&&q.w===2) st.b++;
+    else if(q.h===2&&q.w===1) st.d++;
+    else st.e++;
+  });
+  return st;
+}
+
+/* Rebuild the piece list in reading order and re-key the placed images to match. */
+function commitPieces(list){
+  list.sort(function(x,y){return (x.p.r-y.p.r)||(x.p.c-y.p.c)});
+  stagePieces=list.map(function(o){return o.p});
+  assign={};
+  list.forEach(function(o,i){ if(o.a!=null) assign[i]=o.a });
+}
+
+/* After an edit, see whether the result is a catalogued layout so the counter and
+   the layout arrows stay in step. */
+function relocateAfterEdit(){
+  var til=CACHE[stageFmtKey].tilings;
+  var key=stagePieces.map(function(q){return q.r+','+q.c+','+q.h+','+q.w}).join('|');
+  var t=-1;
+  for(var i=0;i<til.length;i++){
+    var k=til[i].map(function(q){return q[0]+','+q[1]+','+q[2]+','+q[3]}).join('|');
+    if(k===key){t=i;break}
+  }
+  if(t<0){edited=true;return}
+  var mask=0, si=0;
+  stagePieces.forEach(function(q){
+    if(q.h===1&&q.w===1){ if(q.card) mask|=(1<<si); si++ }
+  });
+  for(var v=0;v<view.length;v++){
+    if(view[v].f===stageFmtKey&&view[v].t===t&&view[v].m===mask){
+      vIndex=v; stageItem=view[v]; edited=false; return;
+    }
+  }
+  edited=true;
 }
 
 function drawStage(){
   var host=document.getElementById('stage-page'), item=currentItem();
-  if(item!==stageItem){
-    if(item&&stageItem) assign=remapAssignments(stageItem,item,assign);
-    else if(!stageItem) assign=assign;
-    stageItem=item;
+  if(!stagePieces || (!edited && item!==stageItem)) setStage(item);
+  if(!stagePieces){
+    host.innerHTML='<div class="empty">No layout in the current filter.</div>';
+    document.getElementById('stage-meta').textContent='';
+    document.getElementById('stage-actions').innerHTML='';
+    return;
   }
-  if(!item){host.innerHTML='<div class="empty">No layout in the current filter.</div>';
-    document.getElementById('stage-meta').textContent=''; return}
-  var F=fmtOf(item), ps=pieceInfo(item);
+  var F=FORMATS[stageFmtKey], ps=stagePieces;
   var html='<div class="page big" style="'+gridTemplate(F)+'">'+
            '<div class="spine" aria-hidden="true" style="grid-column:'+(F.seam+2)+'"></div>';
   for(var i=0;i<ps.length;i++){
@@ -626,30 +755,106 @@ function drawStage(){
     var style='grid-column:'+gridCol(q.c,F)+' / span '+q.w+';grid-row:'+(q.r+1)+' / span '+q.h+';';
     if(img) style+='background-image:url('+img.url+');';
     html+='<div class="slot '+(q.card?'card':'art')+' fit-'+fit+(img?' filled':'')+
-          (selSlot===i?' sel':'')+'" data-s="'+i+'" tabindex="0"'+
+          (selSlots.indexOf(i)>=0?' sel':'')+'" data-s="'+i+'" tabindex="0"'+
           (img?' draggable="true"':'')+' style="'+style+'">'+
-          '<span class="tag">'+(q.card?'card':q.h+'×'+q.w)+'</span>'+
+          '<span class="tag">'+(q.card?'card':q.h+'\u00d7'+q.w)+'</span>'+
           '<button class="fit" type="button" data-fit="'+i+'" aria-label="Change how this image fits">'+FITLABEL[fit]+'</button>'+
-          '<button class="clear" type="button" data-clear="'+i+'" aria-label="Clear pocket">×</button></div>';
+          '<button class="clear" type="button" data-clear="'+i+'" aria-label="Clear pocket">\u00d7</button></div>';
   }
   host.innerHTML=html+'</div>';
-  var placed=0; for(var s in assign) if(assign[s]!=null) placed++;
+
+  var st=stageStats(), bits=[];
+  if(st.a) bits.push(st.a+'\u00d71\u00d71');
+  if(st.b) bits.push(st.b+'\u00d71\u00d72');
+  if(st.d) bits.push(st.d+'\u00d72\u00d71');
+  if(st.e) bits.push(st.e+'\u00d72\u00d72');
+  var placed=0; for(var k in assign) if(assign[k]!=null) placed++;
   document.getElementById('stage-meta').textContent=
-    'Layout '+(vIndex+1).toLocaleString()+' of '+view.length.toLocaleString()+
-    '  ·  '+item.c+' cards  ·  '+spec(item)+(placed?'  ·  '+placed+' image'+(placed===1?'':'s')+' placed':'');
+    (edited ? 'Custom layout' :
+      'Layout '+(vIndex+1).toLocaleString()+' of '+view.length.toLocaleString()) +
+    '  \u00b7  '+st.c+' cards  \u00b7  '+bits.join('  ')+
+    (placed?'  \u00b7  '+placed+' image'+(placed===1?'':'s')+' placed':'');
+  drawActions();
 }
+
+/* ---- selection, merging, unmerging ---- */
+function mergeTarget(){
+  if(!stagePieces||selSlots.length<2) return null;
+  var cells=[], ok=true;
+  selSlots.forEach(function(i){
+    var q=stagePieces[i];
+    if(!q||q.card){ok=false;return}
+    for(var r=0;r<q.h;r++) for(var c=0;c<q.w;c++) cells.push([q.r+r,q.c+c]);
+  });
+  if(!ok||!cells.length) return null;
+  var rs=cells.map(function(x){return x[0]}), cs=cells.map(function(x){return x[1]});
+  var minR=Math.min.apply(null,rs), maxR=Math.max.apply(null,rs);
+  var minC=Math.min.apply(null,cs), maxC=Math.max.apply(null,cs);
+  var H=maxR-minR+1, W=maxC-minC+1;
+  if(cells.length!==H*W) return null;
+  if(!((H===1&&W===2)||(H===2&&W===1)||(H===2&&W===2))) return null;
+  var F=FORMATS[stageFmtKey];
+  if(W===2&&minC<=F.seam&&minC+W-1>=F.seam+1) return null;
+  return {r:minR,c:minC,h:H,w:W};
+}
+function canUnmerge(){
+  if(selSlots.length!==1) return false;
+  var q=stagePieces[selSlots[0]];
+  return !!q && !q.card && q.h*q.w>1;
+}
+function canSwapSel(){
+  if(selSlots.length!==2) return false;
+  return sameSize(stagePieces,selSlots[0],selSlots[1]);
+}
+function doMerge(){
+  var box=mergeTarget(); if(!box) return;
+  var list=[], inherited=null;
+  stagePieces.forEach(function(q,i){
+    if(selSlots.indexOf(i)>=0){ if(inherited==null&&assign[i]!=null) inherited=assign[i]; }
+    else list.push({p:q,a:assign[i]});
+  });
+  list.push({p:{r:box.r,c:box.c,h:box.h,w:box.w,card:false},a:inherited});
+  commitPieces(list); selSlots=[]; relocateAfterEdit(); drawStage();
+}
+function doUnmerge(){
+  if(!canUnmerge()) return;
+  var idx=selSlots[0], big=stagePieces[idx], moved=assign[idx], list=[];
+  stagePieces.forEach(function(q,i){ if(i!==idx) list.push({p:q,a:assign[i]}) });
+  for(var r=0;r<big.h;r++) for(var c=0;c<big.w;c++){
+    list.push({p:{r:big.r+r,c:big.c+c,h:1,w:1,card:false},
+               a:(r===0&&c===0)?moved:null});
+  }
+  commitPieces(list); selSlots=[]; relocateAfterEdit(); drawStage();
+}
+function drawActions(){
+  var box=selSlots.length?mergeTarget():null, host=document.getElementById('stage-actions');
+  if(!selSlots.length){
+    host.innerHTML='Tap pockets to select them, then merge, unmerge or swap.';
+    return;
+  }
+  var h='<span>'+selSlots.length+' selected</span>';
+  if(box) h+='<button class="btn" id="a-merge" type="button">Merge into '+box.h+'\u00d7'+box.w+'</button>';
+  if(canUnmerge()) h+='<button class="btn" id="a-unmerge" type="button">Unmerge</button>';
+  if(canSwapSel()) h+='<button class="btn" id="a-swap" type="button">Swap</button>';
+  h+='<button class="btn" id="a-none" type="button">Deselect</button>';
+  host.innerHTML=h;
+  var m=document.getElementById('a-merge'); if(m) m.addEventListener('click',doMerge);
+  var u=document.getElementById('a-unmerge'); if(u) u.addEventListener('click',doUnmerge);
+  var w=document.getElementById('a-swap'); if(w) w.addEventListener('click',function(){
+    swapSlots(selSlots[0],selSlots[1]); selSlots=[]; drawStage();
+  });
+  document.getElementById('a-none').addEventListener('click',function(){selSlots=[];drawStage()});
+}
+
 /* two pockets can trade contents only when they are the same size */
 function sameSize(ps,a,b){return !!ps[a]&&!!ps[b]&&ps[a].h===ps[b].h&&ps[a].w===ps[b].w}
 function swapSlots(a,b){
-  var item=currentItem(); if(!item||a===b) return false;
-  var ps=pieceInfo(item);
-  if(!sameSize(ps,a,b)) return false;
+  if(!stagePieces||a===b||!sameSize(stagePieces,a,b)) return false;
   var keep=assign[a];
   if(assign[b]!=null) assign[a]=assign[b]; else delete assign[a];
   if(keep!=null) assign[b]=keep; else delete assign[b];
   return true;
 }
-function byId(id){for(var i=0;i<images.length;i++) if(images[i].id===id) return images[i]; return null}
 
 document.getElementById('stage-page').addEventListener('click',function(ev){
   var ft=ev.target.closest('[data-fit]');
@@ -659,17 +864,15 @@ document.getElementById('stage-page').addEventListener('click',function(ev){
     return;
   }
   var cl=ev.target.closest('[data-clear]');
-  if(cl){delete assign[+cl.dataset.clear]; selSlot=null; drawStage(); return}
+  if(cl){delete assign[+cl.dataset.clear]; selSlots=[]; drawStage(); return}
   var s=ev.target.closest('.slot'); if(!s) return;
   var i=+s.dataset.s;
   if(selImg!=null){
-    assign[i]={id:selImg,fit:defaultFit}; selImg=null; selSlot=null;
+    assign[i]={id:selImg,fit:defaultFit}; selImg=null; selSlots=[];
     drawTray(); drawStage(); return;
   }
-  if(selSlot===null){ if(assign[i]) selSlot=i; }
-  else if(selSlot===i){ selSlot=null; }
-  else if(swapSlots(selSlot,i)){ selSlot=null; }
-  else { selSlot=assign[i]?i:null; }
+  var at=selSlots.indexOf(i);
+  if(at>=0) selSlots.splice(at,1); else selSlots.push(i);
   drawStage();
 });
 document.getElementById('stage-page').addEventListener('dragstart',function(ev){
@@ -689,22 +892,23 @@ document.getElementById('stage-page').addEventListener('drop',function(ev){
   var s=ev.target.closest('.slot'); if(!s) return;
   ev.preventDefault(); s.classList.remove('hot');
   var raw=ev.dataTransfer.getData('text/plain'), target=+s.dataset.s;
-  if(raw.indexOf('slot:')===0){ swapSlots(+raw.slice(5),target); }
-  else { var id=+raw; if(id) assign[target]={id:id,fit:defaultFit}; }
-  selSlot=null; drawStage();
+  if(raw.indexOf('slot:')===0){ swapSlots(+raw.slice(5),target) }
+  else { var id=+raw; if(id) assign[target]={id:id,fit:defaultFit} }
+  selSlots=[]; drawStage();
 });
 
 function stepLayout(d){
   if(!view.length) return;
+  edited=false;
   vIndex=(vIndex+d+view.length)%view.length; drawStage();
 }
 document.getElementById('v-prev').addEventListener('click',function(){stepLayout(-1)});
 document.getElementById('v-next').addEventListener('click',function(){stepLayout(1)});
 document.getElementById('v-shuffle').addEventListener('click',function(){
   if(!view.length) return;
-  vIndex=Math.floor(Math.random()*view.length); drawStage();
+  edited=false; vIndex=Math.floor(Math.random()*view.length); drawStage();
 });
-document.getElementById('v-clear').addEventListener('click',function(){assign={};drawStage()});
+document.getElementById('v-clear').addEventListener('click',function(){assign={};selSlots=[];drawStage()});
 document.getElementById('v-fit').addEventListener('change',function(){
   defaultFit=this.value;
   for(var s in assign) if(assign[s]) assign[s].fit=defaultFit;
@@ -764,17 +968,39 @@ document.getElementById('tray').addEventListener('dragstart',function(ev){
   ev.dataTransfer.setData('text/plain',c.dataset.id);
 });
 
-/* PNG export */
-var EX={W:300,H:420,G:12,GU:26,RG:16,P:34};
+/* PNG export, sized so every 1x1 pocket prints at exactly 63 x 88 mm.
+   Dimensions are held in millimetres and converted at the chosen resolution,
+   and a pHYs chunk is written into the file so print software honours it. */
+var MM={W:63,H:88,G:2,GU:6,RG:3,P:6};
 function rrect(ctx,x,y,w,h,r){
   ctx.beginPath();
   ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
   ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
 }
+var CRCT=(function(){var t=[];for(var n=0;n<256;n++){var c=n;
+  for(var k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1); t[n]=c>>>0} return t})();
+function crc32(b,from,len){
+  var c=0xFFFFFFFF;
+  for(var i=from;i<from+len;i++) c=CRCT[(c^b[i])&0xFF]^(c>>>8);
+  return (c^0xFFFFFFFF)>>>0;
+}
+function withDensity(buf,ppm){
+  var src=new Uint8Array(buf), at=33;            // 8 signature + 25 IHDR
+  var chunk=new Uint8Array(21), dv=new DataView(chunk.buffer);
+  dv.setUint32(0,9);
+  chunk[4]=0x70; chunk[5]=0x48; chunk[6]=0x59; chunk[7]=0x73;   // "pHYs"
+  dv.setUint32(8,ppm); dv.setUint32(12,ppm); chunk[16]=1;       // unit = metre
+  dv.setUint32(17,crc32(chunk,4,13));
+  var out=new Uint8Array(src.length+21);
+  out.set(src.subarray(0,at),0); out.set(chunk,at); out.set(src.subarray(at),at+21);
+  return out;
+}
 document.getElementById('v-png').addEventListener('click',function(){
-  var item=currentItem(); if(!item) return;
-  var W=EX.W,H=EX.H,G=EX.G,GU=EX.GU,RG=EX.RG,P=EX.P;
-  var F=fmtOf(item), COLS=F.cols, ROWS=F.rows, SEAM=F.seam;
+  if(!stagePieces||!stagePieces.length) return;
+  var dpi=+document.getElementById('v-dpi').value||300;
+  var px=function(mm){return Math.round(mm*dpi/25.4)};
+  var W=px(MM.W),H=px(MM.H),G=px(MM.G),GU=px(MM.GU),RG=px(MM.RG),P=px(MM.P);
+  var F=FORMATS[stageFmtKey], COLS=F.cols, ROWS=F.rows, SEAM=F.seam;
   var cw=2*P+COLS*W+(COLS-1)*G+GU, ch=2*P+ROWS*H+(ROWS-1)*RG;
   var cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
   var ctx=cv.getContext('2d');
@@ -782,8 +1008,9 @@ document.getElementById('v-png').addEventListener('click',function(){
 
   function colX(c){return P + c*(W+G) + (c>SEAM?GU:0)}
   function rowY(r){return P + r*(H+RG)}
+  var edge=Math.max(1,Math.round(dpi/150)), radius=px(1.5);
 
-  ctx.save(); ctx.setLineDash([10,10]); ctx.strokeStyle='#9aa3ac'; ctx.lineWidth=2;
+  ctx.save(); ctx.setLineDash([px(1.5),px(1.5)]); ctx.strokeStyle='#9aa3ac'; ctx.lineWidth=edge;
   var sx=colX(SEAM)+W+G/2+GU/2;
   ctx.beginPath(); ctx.moveTo(sx,P); ctx.lineTo(sx,ch-P); ctx.stroke();
   for(var r=1;r<ROWS;r++){
@@ -792,19 +1019,17 @@ document.getElementById('v-png').addEventListener('click',function(){
   }
   ctx.restore();
 
-  var ps=pieceInfo(item);
-  for(var i=0;i<ps.length;i++){
-    var q=ps[i];
+  for(var i=0;i<stagePieces.length;i++){
+    var q=stagePieces[i];
     var x=colX(q.c), y=rowY(q.r);
     var w=q.w*W+(q.w-1)*G, h=q.h*H+(q.h-1)*RG;
     var a=assign[i], im=a?byId(a.id):null;
-    ctx.save(); rrect(ctx,x,y,w,h,8); ctx.clip();
+    ctx.save(); rrect(ctx,x,y,w,h,radius); ctx.clip();
     ctx.fillStyle=q.card?'#f6c344':'#5b9bd8'; ctx.fillRect(x,y,w,h);
     if(im&&im.el.naturalWidth){
       var iw=im.el.naturalWidth, ih=im.el.naturalHeight, sc, sw, sh;
-      if(a.fit==='stretch'){
-        ctx.drawImage(im.el,0,0,iw,ih,x,y,w,h);
-      }else if(a.fit==='contain'){
+      if(a.fit==='stretch'){ ctx.drawImage(im.el,0,0,iw,ih,x,y,w,h) }
+      else if(a.fit==='contain'){
         sc=Math.min(w/iw,h/ih); sw=iw*sc; sh=ih*sc;
         ctx.drawImage(im.el,0,0,iw,ih,x+(w-sw)/2,y+(h-sh)/2,sw,sh);
       }else{
@@ -813,15 +1038,21 @@ document.getElementById('v-png').addEventListener('click',function(){
       }
     }
     ctx.restore();
-    ctx.strokeStyle=q.card?'#a97a08':'#1d4f83'; ctx.lineWidth=2;
-    rrect(ctx,x,y,w,h,8); ctx.stroke();
+    ctx.strokeStyle=q.card?'#a97a08':'#1d4f83'; ctx.lineWidth=edge;
+    rrect(ctx,x,y,w,h,radius); ctx.stroke();
   }
+
+  var st=stageStats();
   cv.toBlob(function(blob){
-    var a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download='binder-'+item.f+'-'+item.c+'cards-'+spec(item).replace(/[^0-9x]+/g,'-')+'.png';
-    a.click();
-    setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+    blob.arrayBuffer().then(function(buf){
+      var ppm=Math.round(dpi/0.0254);
+      var out=new Blob([withDensity(buf,ppm)],{type:'image/png'});
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(out);
+      a.download='binder-'+stageFmtKey+'-'+st.c+'cards-'+dpi+'dpi.png';
+      a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+    });
   },'image/png');
 });
 
