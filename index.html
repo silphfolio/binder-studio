@@ -26,7 +26,10 @@ body{margin:0;background:var(--paper);color:var(--ink);
 
 header.top{padding:34px 0 18px}
 h1{font-size:clamp(26px,4.4vw,40px);font-weight:700;letter-spacing:-.025em;margin:0 0 10px;line-height:1.06}
-h1 .logo{display:block;height:clamp(46px,7.5vw,78px);width:auto;max-width:100%}
+/* Three-line logo. Sized by height, width follows the artwork automatically.
+   The three numbers are mobile, fluid, and desktop maximum. */
+h1 .logo{display:block;height:clamp(104px,16vw,156px);width:auto;max-width:100%}
+h1 a{display:inline-block;text-decoration:none;color:inherit;cursor:pointer}
 h1 em{font-style:normal;color:var(--ink-3)}
 .sub{margin:0;color:var(--ink-2);max-width:60ch;font-size:clamp(16px,2.1vw,19px);line-height:1.45}
 .help{margin-top:18px;border:1px solid var(--line);background:var(--well);border-radius:3px}
@@ -168,6 +171,11 @@ figcaption b{color:var(--ink-2);font-weight:400}
 
 .panel{background:var(--well);border:1px solid var(--line);border-radius:3px;padding:16px}
 .panel h2{font-size:14px;margin:0 0 4px;letter-spacing:-.01em}
+.support{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px;padding-bottom:14px;
+  border-bottom:1px solid var(--line)}
+.support .btn{text-decoration:none;display:inline-block}
+.support .donate{background:#FF5F5F;border-color:#FF5F5F;color:#fff}
+.support .donate:hover{background:#f04a4a;border-color:#f04a4a}
 .panel p.hint{margin:0 0 12px;font-size:12.5px;color:var(--ink-3);line-height:1.45}
 .drop{border:1px dashed var(--line);border-radius:3px;padding:20px 12px;text-align:center;
   color:var(--ink-3);font-size:13px;cursor:pointer}
@@ -190,14 +198,17 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
 <div class="wrap">
   <header class="top">
     <h1>
-      <img class="logo" src="logo.png" alt="Silphfolio's Binder Studio"
-           onerror="this.remove();document.getElementById('brand-text').hidden=false">
-      <span id="brand-text" hidden>Silphfolio's Binder Studio</span>
+      <a href="#browse" id="brand-link" aria-label="Back to the layouts">
+        <img class="logo" src="logo.png" alt="Silphfolio's Binder Studio"
+             width="1200" height="480"
+             onerror="this.remove();document.getElementById('brand-text').hidden=false">
+        <span id="brand-text" hidden>Silphfolio's Binder Studio</span>
+      </a>
     </h1>
-    <p class="sub">One page, endless possibilities.<br>Generate layouts with cards and art inserts until it feels right.<br>Then preview with your own images.</p>
+    <p class="sub">One page, endless possibilities.<br>Generate layouts with cards and art inserts until it feels right.<br>Then personalise with your own images.</p>
     <div class="tabs" role="tablist">
       <button id="tab-browse" role="tab" aria-selected="true" aria-controls="p-browse">Browse layouts</button>
-      <button id="tab-vis" role="tab" aria-selected="false" aria-controls="p-vis">Visualise</button>
+      <button id="tab-vis" role="tab" aria-selected="false" aria-controls="p-vis">Personalise</button>
     </div>
   </header>
 </div>
@@ -237,11 +248,11 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
           <dt>Colours</dt>
           <dd>Yellow blocks are Pokémon cards, blue blocks are art inserts. Dashed lines mark the binder stitching.</dd>
           <dt>Opening a layout</dt>
-          <dd>Click anywhere on a layout, or its Use button, to open it in the Visualise tab and drop your own images in.</dd>
+          <dd>Click anywhere on a layout, or its Use button, to open it in the Personalise tab and drop your own images in.</dd>
           <dt>Shuffle order</dt>
           <dd>Reorders the results at random, so you see a spread of the whole set rather than working through it from the start. Reset restores the sorted order.</dd>
           <dt>Scrolling</dt>
-          <dd>More layouts load automatically as you scroll. Use Load more if they do not appear.</dd>
+          <dd>More layouts load automatically as you scroll, up to 10,000 at a time. Use Load more if they do not appear, and Next set to move on to the following 10,000.</dd>
         </dl>
       </div>
     </details>
@@ -257,7 +268,9 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
     <div id="results"></div>
     <div id="sentinel" aria-hidden="true" style="height:1px"></div>
     <div class="pager" id="pager" hidden>
+      <button class="btn" id="block-prev" type="button" hidden>&lsaquo; Previous set</button>
       <button class="btn" id="load-more" type="button" title="Show more layouts">Load more</button>
+      <button class="btn" id="block-next" type="button" hidden>Next set &rsaquo;</button>
     </div>
     <p class="pos" id="load-note" style="text-align:center;margin-top:12px"></p>
     <footer id="foot"></footer>
@@ -285,6 +298,8 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
           <dd>Select two pockets of the same size and press Swap, or just drag one filled pocket onto another. Pockets of different sizes will not swap.</dd>
           <dt>Merge</dt>
           <dd>Select two or four art inserts sitting side by side, then press Merge to join them into a single 1×2, 2×1 or 2×2 insert. Cards cannot be merged, and nothing can merge across the stitch line.</dd>
+          <dt>Card or art insert</dt>
+          <dd>Select any single pockets and press Make card or Make art insert to switch what they hold. Yellow is a card, blue is art.</dd>
           <dt>Unmerge</dt>
           <dd>Select a large art insert and press Unmerge to break it back into single pockets.</dd>
           <dt>× on a pocket</dt>
@@ -327,6 +342,10 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
       </div>
 
       <aside class="panel">
+        <div class="support">
+          <a class="btn" href="https://instagram.com/silphfolio" target="_blank" rel="noopener">Follow on IG</a>
+          <a class="btn donate" href="https://buymeacoffee.com/silphfolio" target="_blank" rel="noopener">Donate</a>
+        </div>
         <h2>Your images</h2>
         <p class="hint">Add scans or photos, then tap an image and tap a pocket — or drag one onto a pocket. Images are cropped to fill, and stay put when you shuffle to another layout.</p>
         <div class="drop" id="drop" tabindex="0" role="button">
@@ -490,7 +509,7 @@ function applyFilters(){
   refreshOptions();
   view=ALL.filter(function(x){return matches(x,null)});
   if(shuffled) shuffleView();
-  updateTracker(); render(); syncStageNav(); drawStage();
+  blockStart=0; updateTracker(); render(); syncStageNav(); drawStage();
 }
 for(var k in sel) sel[k].addEventListener('change',applyFilters);
 document.getElementById('reset').addEventListener('click',function(){
@@ -539,13 +558,13 @@ function updateTracker(){
 }
 
 var shown=0, shuffled=false, curGrid=null, lastSec=null;
-var RENDER_CAP=1500;
+var BLOCK=10000, blockStart=0;
 
 function figHTML(x,idx){
-  return '<figure data-i="'+idx+'" tabindex="0" role="button" aria-label="Open layout '+(idx+1)+' in the Visualise tab">'+
+  return '<figure data-i="'+idx+'" tabindex="0" role="button" aria-label="Open layout '+(idx+1)+' in the Personalise tab">'+
     pageHTML(x)+
-    '<figcaption><b>#'+(idx+1).toLocaleString()+'</b><br>'+spec(x)+'</figcaption>'+
-    '<button class="use" type="button" title="Open this layout in the Visualise tab" data-i="'+idx+'">Use \u2192</button></figure>';
+    '<figcaption><b>#'+(idx+1).toLocaleString()+'</b></figcaption>'+
+    '<button class="use" type="button" title="Open this layout in the Personalise tab" data-i="'+idx+'">Use \u2192</button></figure>';
 }
 function newGrid(){
   var g=document.createElement('div'); g.className='grid';
@@ -560,7 +579,7 @@ function sectionHead(cards){
 }
 function appendBatch(){
   if(!view.length) return;
-  var end=Math.min(shown+PER_PAGE, view.length, RENDER_CAP), buf='';
+  var end=Math.min(shown+PER_PAGE, view.length, blockStart+BLOCK), buf='';
   for(var i=shown;i<end;i++){
     var x=view[i];
     if(!shuffled && x.c!==lastSec){
@@ -575,21 +594,25 @@ function appendBatch(){
   updateLoadUI();
 }
 function updateLoadUI(){
-  var more = shown<view.length && shown<RENDER_CAP;
-  document.getElementById('pager').hidden=!more;
+  var blockEnd=Math.min(blockStart+BLOCK,view.length);
+  var more=shown<blockEnd, hasNext=view.length>blockStart+BLOCK, hasPrev=blockStart>0;
+  var lm=document.getElementById('load-more'),
+      bn=document.getElementById('block-next'),
+      bp=document.getElementById('block-prev');
+  lm.hidden=!more;
+  bn.hidden=!(hasNext&&!more);
+  bp.hidden=!hasPrev;
+  document.getElementById('pager').hidden=(lm.hidden&&bn.hidden&&bp.hidden);
   var note=document.getElementById('load-note');
-  if(!view.length) note.textContent='';
-  else if(shown>=RENDER_CAP && view.length>RENDER_CAP)
-    note.textContent='Showing the first '+RENDER_CAP.toLocaleString()+' of '+view.length.toLocaleString()+
-      '. Narrow the filters, or shuffle the order for a different selection.';
-  else if(!more) note.textContent='That is all '+view.length.toLocaleString()+'.';
-  else note.textContent='';
+  if(!view.length){note.textContent='';return}
+  note.textContent='Showing '+(blockStart+1).toLocaleString()+'\u2013'+shown.toLocaleString()+
+    ' of '+view.length.toLocaleString()+((!more&&!hasNext)?'. That is all of them.':'');
 }
 function render(){
   var res=document.getElementById('results');
   document.getElementById('tally').innerHTML='<b>'+view.length.toLocaleString()+'</b> of '+
     ALL.length.toLocaleString()+' arrangements';
-  res.innerHTML=''; curGrid=null; lastSec=null; shown=0;
+  res.innerHTML=''; curGrid=null; lastSec=null; shown=blockStart;
   if(!view.length){
     res.innerHTML='<div class="empty">Nothing matches that combination. Reset the filters to start over.</div>';
     document.getElementById('pager').hidden=true;
@@ -605,10 +628,16 @@ function shuffleView(){
 }
 document.getElementById('shuffle-order').addEventListener('click',function(){
   if(!view.length) return;
-  shuffled=true; shuffleView(); this.textContent='Shuffle again';
+  shuffled=true; shuffleView(); this.textContent='Shuffle again'; blockStart=0;
   render(); window.scrollTo({top:0});
 });
 document.getElementById('load-more').addEventListener('click',appendBatch);
+document.getElementById('block-next').addEventListener('click',function(){
+  blockStart+=BLOCK; render(); window.scrollTo({top:0});
+});
+document.getElementById('block-prev').addEventListener('click',function(){
+  blockStart=Math.max(0,blockStart-BLOCK); render(); window.scrollTo({top:0});
+});
 if(typeof IntersectionObserver!=='undefined'){
   new IntersectionObserver(function(entries){
     if(entries[0].isIntersecting && !document.getElementById('p-browse').hidden) appendBatch();
@@ -628,24 +657,34 @@ document.getElementById('results').addEventListener('keydown',function(ev){
 });
 
 function drawFooter(){
-  var by={}; for(var i=0;i<ALL.length;i++) by[ALL[i].c]=(by[ALL[i].c]||0)+1;
-  var parts=Object.keys(by).sort(function(a,b){return a-b}).map(function(k){return k+' cards: '+by[k].toLocaleString()});
   document.getElementById('foot').textContent=
-    FORMATS[fmt].label+' — '+ALL.length.toLocaleString()+' arrangements in total ('+parts.join(' · ')+').';
+    FORMATS[fmt].label+' — '+ALL.length.toLocaleString()+' arrangements in total.';
 }
 
 /* ================= tabs ================= */
-function showTab(which){
+var curTab='browse';
+function showTab(which,push){
   var isB=(which==='browse');
   document.getElementById('p-browse').hidden=!isB;
   document.getElementById('p-vis').hidden=isB;
   document.getElementById('tab-browse').setAttribute('aria-selected',isB);
   document.getElementById('tab-vis').setAttribute('aria-selected',!isB);
   if(!isB) drawStage();
+  if(push!==false && which!==curTab){
+    try{ history.pushState({tab:which},'','#'+(isB?'browse':'personalise')) }catch(e){}
+  }
+  curTab=which;
   window.scrollTo({top:0});
 }
+window.addEventListener('popstate',function(ev){
+  var t=(ev.state&&ev.state.tab)|| (location.hash==='#personalise'?'vis':'browse');
+  showTab(t,false);
+});
 document.getElementById('tab-browse').addEventListener('click',function(){showTab('browse')});
 document.getElementById('tab-vis').addEventListener('click',function(){showTab('vis')});
+document.getElementById('brand-link').addEventListener('click',function(ev){
+  ev.preventDefault(); showTab('browse');
+});
 
 /* ================= visualiser ================= */
 
@@ -763,16 +802,12 @@ function drawStage(){
   }
   host.innerHTML=html+'</div>';
 
-  var st=stageStats(), bits=[];
-  if(st.a) bits.push(st.a+'\u00d71\u00d71');
-  if(st.b) bits.push(st.b+'\u00d71\u00d72');
-  if(st.d) bits.push(st.d+'\u00d72\u00d71');
-  if(st.e) bits.push(st.e+'\u00d72\u00d72');
+  var st=stageStats();
   var placed=0; for(var k in assign) if(assign[k]!=null) placed++;
   document.getElementById('stage-meta').textContent=
     (edited ? 'Custom layout' :
       'Layout '+(vIndex+1).toLocaleString()+' of '+view.length.toLocaleString()) +
-    '  \u00b7  '+st.c+' cards  \u00b7  '+bits.join('  ')+
+    '  \u00b7  '+st.c+' cards' +
     (placed?'  \u00b7  '+placed+' image'+(placed===1?'':'s')+' placed':'');
   drawActions();
 }
@@ -801,6 +836,26 @@ function canUnmerge(){
   if(selSlots.length!==1) return false;
   var q=stagePieces[selSlots[0]];
   return !!q && !q.card && q.h*q.w>1;
+}
+/* every selected pocket is a single 1x1, so it can flip between card and art */
+function convertible(){
+  if(!selSlots.length||!stagePieces) return null;
+  var anyCard=false, anyArt=false;
+  for(var i=0;i<selSlots.length;i++){
+    var q=stagePieces[selSlots[i]];
+    if(!q||q.h!==1||q.w!==1) return null;
+    if(q.card) anyCard=true; else anyArt=true;
+  }
+  return {toCard:anyArt,toArt:anyCard};
+}
+function convertSel(toCard){
+  var changed=false;
+  selSlots.forEach(function(i){
+    var q=stagePieces[i];
+    if(q&&q.h===1&&q.w===1&&q.card!==toCard){q.card=toCard;changed=true}
+  });
+  if(!changed) return;
+  selSlots=[]; relocateAfterEdit(); drawStage();
 }
 function canSwapSel(){
   if(selSlots.length!==2) return false;
@@ -832,14 +887,19 @@ function drawActions(){
     host.innerHTML='Tap pockets to select them, then merge, unmerge or swap.';
     return;
   }
+  var conv=convertible();
   var h='<span>'+selSlots.length+' selected</span>';
   if(box) h+='<button class="btn" id="a-merge" type="button">Merge into '+box.h+'\u00d7'+box.w+'</button>';
   if(canUnmerge()) h+='<button class="btn" id="a-unmerge" type="button">Unmerge</button>';
+  if(conv&&conv.toCard) h+='<button class="btn" id="a-tocard" type="button">Make card</button>';
+  if(conv&&conv.toArt) h+='<button class="btn" id="a-toart" type="button">Make art insert</button>';
   if(canSwapSel()) h+='<button class="btn" id="a-swap" type="button">Swap</button>';
   h+='<button class="btn" id="a-none" type="button">Deselect</button>';
   host.innerHTML=h;
   var m=document.getElementById('a-merge'); if(m) m.addEventListener('click',doMerge);
   var u=document.getElementById('a-unmerge'); if(u) u.addEventListener('click',doUnmerge);
+  var tc=document.getElementById('a-tocard'); if(tc) tc.addEventListener('click',function(){convertSel(true)});
+  var ta=document.getElementById('a-toart'); if(ta) ta.addEventListener('click',function(){convertSel(false)});
   var w=document.getElementById('a-swap'); if(w) w.addEventListener('click',function(){
     swapSlots(selSlots[0],selSlots[1]); selSlots=[]; drawStage();
   });
@@ -1057,12 +1117,14 @@ document.getElementById('v-png').addEventListener('click',function(){
 });
 
 /* ================= init ================= */
+try{ history.replaceState({tab:location.hash==='#personalise'?'vis':'browse'},'',location.hash||'#browse') }catch(e){}
 document.getElementById('f-format').value=fmt;
 for(var kk in sel) sel[kk].value='any';
 applyFilters();
 drawFooter();
 drawTray();
 drawStage();
+if(location.hash==='#personalise') showTab('vis',false);
 })();
 </script>
 </body>
