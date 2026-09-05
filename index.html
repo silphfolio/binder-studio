@@ -331,7 +331,7 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
           <dt>Selecting pockets</dt>
           <dd>Tap a pocket to select it, tap again to deselect. The buttons under the page show what you can do with the current selection.</dd>
           <dt>Swap two pockets</dt>
-          <dd>Select two pockets of the same size and press Swap, or just drag one filled pocket onto another. Pockets of different sizes will not swap.</dd>
+          <dd>Select two pockets of the same size and press Swap, or just drag one filled pocket onto another. Swapping trades the images and whether each pocket is a card or an art insert, so the two move together. Pockets of different sizes will not swap.</dd>
           <dt>Merge</dt>
           <dd>Select two or four art inserts sitting side by side, then press Merge to join them into a single 1×2, 2×1 or 2×2 insert. Cards cannot be merged, and nothing can merge across the stitch line.</dd>
           <dt>Card or art insert</dt>
@@ -415,7 +415,6 @@ footer{color:var(--ink-3);font-size:12.5px;padding:0 0 50px}
         </div>
       </aside>
     </div>
-    <footer style="padding-top:34px">The layout arrows follow whatever you have filtered on the Browse tab.</footer>
   </div>
 </section>
 
@@ -472,11 +471,9 @@ function buildFormat(key){
       else if(h===2&&w===1) n21++;
       else n22++;
     }
-    if(n12+n21+n22===0) continue;
     for(var mask=0;mask<(1<<smalls);mask++){
       var cards=0;
       for(var b=0;b<smalls;b++) if(mask&(1<<b)) cards++;
-      if(smalls-cards<1) continue;
       list.push({f:key,t:t,m:mask,c:cards,a:smalls-cards,b:n12,d:n21,e:n22});
     }
   }
@@ -924,7 +921,9 @@ function convertSel(toCard){
   var changed=false;
   selSlots.forEach(function(i){
     var q=stagePieces[i];
-    if(q&&q.h===1&&q.w===1&&q.card!==toCard){q.card=toCard;changed=true}
+    if(q&&q.h===1&&q.w===1&&q.card!==toCard){
+      q.card=toCard; changed=true;
+    }
   });
   if(!changed) return;
   selSlots=[]; relocateAfterEdit(); drawStage();
@@ -980,11 +979,16 @@ function drawActions(){
 
 /* two pockets can trade contents only when they are the same size */
 function sameSize(ps,a,b){return !!ps[a]&&!!ps[b]&&ps[a].h===ps[b].h&&ps[a].w===ps[b].w}
+/* Swapping trades the whole contents of two pockets: the image and whether the
+   pocket is a card or an art insert. The two move together, so a card image is
+   never left sitting in an art pocket. */
 function swapSlots(a,b){
   if(!stagePieces||a===b||!sameSize(stagePieces,a,b)) return false;
   var keep=assign[a];
   if(assign[b]!=null) assign[a]=assign[b]; else delete assign[a];
   if(keep!=null) assign[b]=keep; else delete assign[b];
+  var pa=stagePieces[a], pb=stagePieces[b];
+  if(pa.card!==pb.card){ var t=pa.card; pa.card=pb.card; pb.card=t; relocateAfterEdit(); }
   return true;
 }
 
@@ -1167,7 +1171,7 @@ function drawTray(){
     var im=images[i];
     html+='<div class="chip'+(selImg===im.id?' sel':'')+'" draggable="true" data-id="'+im.id+'" '+
           'title="'+im.name.replace(/"/g,'')+'" style="background-image:url('+im.url+')">'+
-          '<button class="x" type="button" data-del="'+im.id+'" aria-label="Remove image">×</button></div>';
+          '<button class="x" type="button" data-del="'+im.id+'" aria-label="Remove image">\u00d7</button></div>';
   }
   document.getElementById('tray').innerHTML=html;
 }
@@ -1176,7 +1180,7 @@ document.getElementById('tray').addEventListener('click',function(ev){
   if(d){
     var id=+d.dataset.del;
     images=images.filter(function(x){return x.id!==id});
-    for(var s in assign) if(assign[s]&&assign[s].id===id) delete assign[s];
+    for(var sKey in assign) if(assign[sKey]&&assign[sKey].id===id) delete assign[sKey];
     if(selImg===id) selImg=null;
     drawTray(); drawStage(); return;
   }
